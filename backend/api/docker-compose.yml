@@ -1,0 +1,33 @@
+# Versão do Docker Compose
+version: '3.8'
+
+# Definição dos nossos serviços (containers)
+services:
+  # O nome do nosso serviço de banco de dados
+  db:
+    # A imagem Docker que vamos usar
+    image: postgres:15
+    
+    # Nome do container, para fácil identificação
+    container_name: caracameusonho-db
+    
+    # Reinicia o container automaticamente se ele parar por algum motivo
+    restart: always
+    
+    # Variáveis de ambiente, as mesmas que usamos com as flags -e
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: caracameusonho_db
+      
+    # Mapeamento de portas (HOST:CONTAINER)
+    ports:
+      - "5432:5432"
+      
+    # Mapeamento de volumes para persistir os dados
+    volumes:
+      - caracameusonho-data:/var/lib/postgresql/data
+
+# Definição dos volumes nomeados
+volumes:
+  caracameusonho-data:
