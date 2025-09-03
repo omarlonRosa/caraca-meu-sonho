@@ -11,6 +11,13 @@ import { AdminLoginPage } from './pages/AdminLoginPage';
 import { TripDetailPage } from "./pages/TripDetailPage";
 import { SuccessPage } from './pages/SuccessPage';
 import { CancelPage } from './pages/CancelPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { ClienteDashboardPage } from './pages/ClienteDashboardPage';
+import { ReservaDocumentosPage } from './pages/ReservaDocumentosPage';
+import { ReservaFotosPage } from './pages/ReservaFotosPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { LoginPage } from './pages/LoginPage';
+import { GoogleCallbackPage } from './pages/GoogleCallbackPage';
 
 function App() {
 
@@ -52,11 +59,18 @@ function App() {
             <Route path="/reserva/sucesso" element={<SuccessPage />} />
           <Route path="/reserva/cancelada" element={<CancelPage />} />
 
-            <Route path="/viagem/:pacoteId" element={<TripDetailPage />} />
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/pacotes/novo" element={<CreatePackagePage/>}/>
-          <Route path="/admin/dashboard" element={< AdminDashboardPage />} />
-          <Route path="/admin/pacotes/editar/:pacoteId" element={<EditPackagePage />}/>
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/oauth2/callback" element={<GoogleCallbackPage />} />
+
+          <Route path="/admin/pacotes/novo" element={<ProtectedRoute><CreatePackagePage/></ProtectedRoute>}/>
+          <Route path="/admin/dashboard" element={<ProtectedRoute>< AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/admin/pacotes/editar/:pacoteId" element={<ProtectedRoute><EditPackagePage /></ProtectedRoute>}/>
+
+            <Route path="/cliente/dashboard" element={<ProtectedRoute><ClienteDashboardPage /></ProtectedRoute>} />
+            <Route path="/cliente/reservas/:reservaId/documentos" element={<ProtectedRoute><ReservaDocumentosPage /></ProtectedRoute>} />
+            <Route path="/cliente/reservas/:reservaId/fotos" element={<ProtectedRoute><ReservaFotosPage /></ProtectedRoute>} />
        
         </Routes>
       </BrowserRouter>

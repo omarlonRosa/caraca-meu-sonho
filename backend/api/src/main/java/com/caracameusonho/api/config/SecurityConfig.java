@@ -48,12 +48,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize 
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/register").permitAll()
+                .requestMatchers(HttpMethod.GET, "/oauth2/authorization/google").permitAll()
+                .requestMatchers(HttpMethod.GET, "/login/oauth2/code/google").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/oauth2/callback/google").permitAll()
                 .requestMatchers(HttpMethod.POST, "/checkout/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/stripe/webhook").permitAll()
                 .requestMatchers(HttpMethod.GET, "/pacotes/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/oauth2/authorization/**").permitAll()
                 
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
@@ -104,6 +105,7 @@ public AuthenticationSuccessHandler successHandler() {
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         return source;

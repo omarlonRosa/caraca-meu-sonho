@@ -5,6 +5,7 @@ interface AuthContextData {
  
   token: string | null;
   login: (credentials: {username: string, password: any}) => Promise <void>;
+  loginWithToken: (token: string) => void;
   logout:() => void;
 
 }
@@ -30,13 +31,18 @@ async function login(credentials: { username: string, password: any}){
     localStorage.setItem('@CaracaMeuSonho:token', newToken);
   }
 
+  function loginWithToken(token: string) {
+    setToken(token);
+    localStorage.setItem('@CaracaMeuSonho:token', token);
+  }
+
   function logout() {
     setToken(null);
     localStorage.removeItem('@CaracaMeuSonho:token');
   }
 
   return (
-  <AuthContext.Provider value={{token, login, logout}}>
+  <AuthContext.Provider value={{token, login, loginWithToken, logout}}>
   {children}
   </AuthContext.Provider>
   );

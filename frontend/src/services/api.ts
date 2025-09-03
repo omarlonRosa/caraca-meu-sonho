@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost/api',
 });
 
 api.interceptors.request.use((config) => {
@@ -13,6 +13,9 @@ api.interceptors.request.use((config) => {
   }
   return config;
 })
+
+export const googleAuthUrl = 'http://localhost:8080/oauth2/authorization/google';
+
 
 export default api;
 
