@@ -3,14 +3,12 @@ package com.caracameusonho.api.domain.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-public class Reserva {
+public class ListaEspera {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,18 +16,12 @@ public class Reserva {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pacote_viagem_id")
     private PacoteViagem pacoteViagem;
 
-    private String status;
-    private LocalDate dataReserva;
-    private int numeroDeParticipantes;
-    private double valorTotal;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
-  @Column(unique = true)     
-  private String stripeSessionId;
+    private LocalDateTime dataInscricao;
 }

@@ -1,7 +1,9 @@
 package com.caracameusonho.api.domain.service;
 
 import com.caracameusonho.api.domain.model.PacoteViagem;
+import com.caracameusonho.api.domain.model.Usuario;
 import com.caracameusonho.api.domain.repository.PacoteViagemRepository;
+import com.caracameusonho.api.domain.repository.UsuarioRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -17,22 +19,28 @@ public class StripeCheckoutService {
   @Value("${stripe.api.secret-key}")
   private String secretKey;
 
-  @Value("${app.frontend.url}") // Add this to your application.properties
+  @Value("${app.frontend.url}")
   private String frontendUrl;
 
   @Autowired
   private PacoteViagemRepository pacoteViagemRepository;
+
+  @Autowired
+    private UsuarioRepository usuarioRepository;
 
   @PostConstruct
   public void init() {
     Stripe.apiKey = secretKey;
   }
 
-  public Session createCheckoutSession(Long pacoteId) throws StripeException {
+  public Session createCheckoutSession(Long pacoteId, Long usuarioId) throws StripeException {
     PacoteViagem pacote = pacoteViagemRepository.findById(pacoteId)
             .orElseThrow(() -> new RuntimeException("Pacote de viagem não encontrado!"));
 
-    // Use the frontend URL from configuration
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+
+
     String domainURL = frontendUrl;
 
     String imageUrl = pacote.getUrlFotoPrincipal();
@@ -64,7 +72,10 @@ public class StripeCheckoutService {
                 .setQuantity(1L)
                 .setPriceData(priceData)
                 .build()
-        ).build();
+        )
+                .putMetadata("pacote_viagem_id", pacoteId.toString())
+                .putMetadata("usuario_id", usuarioId.toString())
+                .build();
     
     return Session.create(params);
   }

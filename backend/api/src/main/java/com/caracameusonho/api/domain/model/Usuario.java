@@ -16,9 +16,10 @@ public class Usuario {
 
   private String nome;
 
-  @Column(unique = true)
+  @Column(unique = true, nullable = false)
   private String email;
 
+  @Column(nullable = false)
   private String senha;
 
   private String roles;

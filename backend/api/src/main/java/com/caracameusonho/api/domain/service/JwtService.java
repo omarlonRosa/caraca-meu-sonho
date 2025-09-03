@@ -23,13 +23,18 @@ public class JwtService {
 
   public String generateToken(Authentication authentication) {
     UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    return generateToken(userDetails.getUsername());
+  }
+
+
+  public String generateToken(String username){
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + EXPERATION_TIME_MS);
 
     SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
     return Jwts.builder()
-              .setSubject(userDetails.getUsername())
+              .setSubject(username)
               .setIssuedAt(now)
               .setExpiration(expiryDate)
               .signWith(key, SignatureAlgorithm.HS256)

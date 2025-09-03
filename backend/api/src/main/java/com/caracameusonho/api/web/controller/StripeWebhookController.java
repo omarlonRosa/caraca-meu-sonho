@@ -1,8 +1,11 @@
 package com.caracameusonho.api.web.controller;
 
+import com.caracameusonho.api.domain.model.PacoteViagem;
 import com.caracameusonho.api.domain.model.Reserva;
-import com.caracameusonho.api.domain.model.StatusReserva;
+import com.caracameusonho.api.domain.model.Usuario;
+import com.caracameusonho.api.domain.repository.PacoteViagemRepository;
 import com.caracameusonho.api.domain.repository.ReservaRepository;
+import com.caracameusonho.api.domain.repository.UsuarioRepository;
 import com.google.gson.JsonSyntaxException;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
@@ -13,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/stripe/webhook")
@@ -23,19 +28,22 @@ public class StripeWebhookController {
 
     @Autowired
     private ReservaRepository reservaRepository;
-    
-    // Futuramente, precisaremos do PacoteViagemRepository e do UsuarioRepository aqui
 
-    @PostMapping
+    @Autowired
+    private PacoteViagemRepository pacoteViagemRepository; 
+    @Autowired
+    private UsuarioRepository usuarioRepository;     
+
+
+  @PostMapping
     public ResponseEntity<String> handleStripeEvent(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
-        
+
         if (sigHeader == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing Stripe-Signature header");
         }
 
         Event event;
         try {
-            // Reativamos a verificação de assinatura, que é crucial para a segurança
             event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
         } catch (JsonSyntaxException | SignatureVerificationException e) {
             System.out.println("⚠️ Webhook error: " + e.getMessage());
@@ -45,23 +53,34 @@ public class StripeWebhookController {
         switch (event.getType()) {
             case "checkout.session.completed":
                 Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
-                
+
                 if (session != null) {
                     System.out.println("\n\n\n✅✅✅ PAGAMENTO BEM-SUCEDIDO! Evento 'checkout.session.completed' recebido! ✅✅✅\n\n\n");
                     System.out.println("Session ID: " + session.getId());
+
+                    Long pacoteId = Long.parseLong(session.getMetadata().get("pacote_viagem_id"));
+                    Long usuarioId = Long.parseLong(session.getMetadata().get("usuario_id"));
                     
-                    // LÓGICA FINAL: Salva a reserva no banco de dados
-                    // Por enquanto, criaremos uma reserva simples. Depois, associaremos ao pacote e usuário corretos.
-                    Reserva novaReserva = new Reserva();
-                    novaReserva.setStatus(StatusReserva.PAGO);
-                    novaReserva.setStripeSessionId(session.getId());
-                    
-                    reservaRepository.save(novaReserva);
-                    System.out.println("✅ Nova reserva salva no banco de dados com ID: " + novaReserva.getId());
+                    Optional<PacoteViagem> optionalPacote = pacoteViagemRepository.findById(pacoteId);
+                    Optional<Usuario> optionalUsuario = usuarioRepository.findById(usuarioId);
+
+                    if (optionalPacote.isPresent() && optionalUsuario.isPresent()) {
+                        Reserva novaReserva = new Reserva();
+                        novaReserva.setStatus("PAGO"); 
+                        novaReserva.setStripeSessionId(session.getId());
+                        novaReserva.setPacoteViagem(optionalPacote.get());
+                        novaReserva.setUsuario(optionalUsuario.get());
+                        novaReserva.setValorTotal(session.getAmountTotal().doubleValue() / 100);
+                        novaReserva.setDataReserva(LocalDate.now());
+
+                        reservaRepository.save(novaReserva);
+                        System.out.println("✅ Nova reserva salva no banco de dados com ID: " + novaReserva.getId());
+                    } else {
+                        System.out.println("❌ Erro: Usuário ou Pacote de Viagem não encontrados para a reserva.");
+                    }
                 }
                 break;
             default:
-                // Não fazemos nada para os outros eventos, pois não são a confirmação final
                 System.out.println("🔔 Evento não processado (informativo): " + event.getType());
         }
 
