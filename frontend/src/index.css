@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+  @apply bg-brand-light text-brand-dark font-body;
+  
+  @apply dark:bg-brand-dark dark:text-brand-light;
+}
+
+input-style { @apply w-full bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded-md focus:ring-brand-primary focus:border-brand-primary; }
