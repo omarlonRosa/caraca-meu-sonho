@@ -45,10 +45,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = (newToken: string) => {
-    localStorage.setItem('@CaracaMeuSonho:token', newToken);
+		 try {
     const decodedUser = jwtDecode<User>(newToken);
-    setToken(newToken);
-    setUser(decodedUser);
+    // @ts-ignore: O payload do JWT pode ter 'exp'
+    if (decodedUser.exp * 1000 > Date.now()) {
+      localStorage.setItem('@CaracaMeuSonho:token', newToken);
+      setToken(newToken);
+      setUser(decodedUser);
+    } else {
+      localStorage.removeItem('@CaracaMeuSonho:token');
+      setToken(null);
+      setUser(null);
+    }
+  } catch (error) {
+    console.error("Token recebido é inválido:", error);
+    localStorage.removeItem('@CaracaMeuSonho:token');
+    setToken(null);
+    setUser(null);
+  }
   };
 
   const logout = () => {

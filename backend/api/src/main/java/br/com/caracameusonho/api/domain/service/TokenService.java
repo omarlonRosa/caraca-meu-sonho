@@ -18,55 +18,55 @@ import java.util.stream.Collectors;
 @Service
 public class TokenService {
 
-    @Value("${app.jwt.secret}")
-    private String jwtSecret;
+	@Value("${app.jwt.secret}")
+	private String jwtSecret;
 
 
-	// Em TokenService.java
 
-public String generateToken(Usuario usuario) { // <-- Recebe 'Usuario'
-    Instant now = Instant.now();
-    Instant expiration = now.plus(8, ChronoUnit.HOURS);
+	public String generateToken(Usuario usuario) { 
+		Instant now = Instant.now();
+		Instant expiration = now.plus(8, ChronoUnit.HOURS);
 
-    // Pega as roles DIRETAMENTE do objeto 'usuario'
-    String roles = usuario.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
+		String roles = usuario.getAuthorities().stream()
+		.map(GrantedAuthority::getAuthority)
+		.collect(Collectors.joining(","));
 
-    return Jwts.builder()
-            .issuer("CaracaMeuSonho API")
-            .subject(usuario.getUsername()) // Usa o 'usuario'
-            .claim("roles", roles)
-            .issuedAt(Date.from(now))
-            .expiration(Date.from(expiration))
-            .signWith(getSigningKey())
-            .compact();
-}
+		return Jwts.builder()
+		.issuer("CaracaMeuSonho API")
+		.subject(usuario.getUsername()) 
+		.claim("roles", roles)
+		.claim("nome", usuario.getNome())
+		.claim("fotoPerfilUrl", usuario.getFotoPerfilUrl())
+		.issuedAt(Date.from(now))
+		.expiration(Date.from(expiration))
+		.signWith(getSigningKey())
+		.compact();
+	}
 
 
-    public String getUsernameFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
+	public String getUsernameFromToken(String token) {
+		return Jwts.parser()
+		.verifyWith(getSigningKey())
+		.build()
+		.parseSignedClaims(token)
+		.getPayload()
+		.getSubject();
+	}
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+	public boolean validateToken(String token) {
+		try {
+			Jwts.parser()
+				.verifyWith(getSigningKey())
+				.build()
+				.parseSignedClaims(token);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
+	private SecretKey getSigningKey() {
+		byte[] keyBytes = Decoders.BASE64.decode(this.jwtSecret);
+		return Keys.hmacShaKeyFor(keyBytes);
+	}
 }

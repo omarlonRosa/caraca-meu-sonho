@@ -24,3 +24,13 @@ INSERT INTO usuario (nome, email, senha, roles) VALUES
 INSERT INTO reserva (usuario_id, pacote_viagem_id, data_reserva, status) VALUES
 ((SELECT id from usuario where email = 'viajante@email.com'), (SELECT id from pacote_viagem where titulo = 'Aventura na Patagônia'), '2025-08-10T10:00:00', 'PENDENTE'),
 ((SELECT id from usuario where email = 'viajante@email.com'), (SELECT id from pacote_viagem where titulo = 'Aurora Boreal na Islândia'), '2024-10-01T15:30:00', 'REALIZADA');
+
+
+INSERT INTO hero_config (type, title, subtitle, main_url, active) VALUES
+(
+    'BANNER',
+    'Viaje com o fotógrafo dos seus sonhos.',
+    'Quero viver essa experiência',
+    'https://res.cloudinary.com/djrzoct2q/image/upload/v1756939987/banner_hero_default_v2_x2k9v0.jpg', -- URL de um banner padrão
+    true
+);

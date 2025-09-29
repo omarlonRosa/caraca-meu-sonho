@@ -35,6 +35,8 @@ export function MeuPerfilPage() {
     }
   };
 
+console.log("DADOS DO USUÁRIO NO CONTEXTO:", user);
+
   if (!user) return <p>Carregando perfil...</p>
 
   return (

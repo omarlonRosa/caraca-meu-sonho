@@ -79,10 +79,15 @@ export function AdminDashboardPage() {
         <h2 className="text-3xl font-heading font-bold text-brand-dark dark:text-brand-light">
           Gerenciar Pacotes de Viagem
         </h2>
+				<div className="flex gap-4">
+          <Link to="/admin/hero" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+            Editar Hero
+          </Link>
         <Link to="/admin/pacotes/novo" className="bg-brand-primary hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg">
           + Adicionar Novo
         </Link>
       </div>
+	  </div>
       <div className="bg-white dark:bg-slate-800 shadow-md rounded-lg overflow-x-auto">
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-slate-700 dark:text-gray-300">
@@ -101,7 +106,7 @@ export function AdminDashboardPage() {
                   <img 
                     src={pacote.urlFotoPrincipal} 
                     alt={pacote.titulo} 
-                    className="h-12 w-12 rounded-md object-cover"
+                    className="h-12 w-12 rounded-md object-cover" // Estilos para a miniatura
                   />
                 </td>
                 <td className="px-6 py-4">{pacote.id}</td>

@@ -25,14 +25,18 @@ public class ImageUploadService {
         }
     }
 
-         public String upload(MultipartFile file) {
-            try {
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+	 public String upload(MultipartFile file, String resourceType) {
+        try {
+            Map<String, Object> options = ObjectUtils.asMap("resource_type", resourceType);
+
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
 
             return uploadResult.get("secure_url").toString();
-            } catch (IOException e) {
-                throw new RuntimeException("Erro ao fazer upload do arquivo: " + e.getMessage());
-            }
+            
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao fazer upload do arquivo: " + e.getMessage());
         }
-}
+    }
+
+        }
 

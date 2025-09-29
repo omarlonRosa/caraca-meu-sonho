@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/api'; 
+import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
 
 export function RegisterPage() {
   const [nome, setNome] = useState('');
@@ -68,6 +69,7 @@ export function RegisterPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-md dark:bg-slate-700 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-primary"
               placeholder="Crie uma senha"
             />
+						 {senha && <PasswordStrengthIndicator password={senha} />}
           </div>
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
           <div>

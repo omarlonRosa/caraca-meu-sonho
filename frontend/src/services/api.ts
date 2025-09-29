@@ -173,9 +173,7 @@ export const createPendingReserva = async (pacoteId: number): Promise<Reserva> =
   return response.json();
 };
 
-// VVVV --- FUNÇÃO MODIFICADA PARA DEBUG --- VVVV
 export const createPaymentIntent = async (data: { pacoteId: number, reservaId: number }): Promise<{ clientSecret: string }> => {
-  // LOG 1: Verificando se a função foi chamada
   console.log('Tentando criar Payment Intent com os dados:', data); 
 
   const token = localStorage.getItem('@CaracaMeuSonho:token');
@@ -191,38 +189,35 @@ export const createPaymentIntent = async (data: { pacoteId: number, reservaId: n
       body: JSON.stringify(data)
     });
 
-    // LOG 2: Verificando a resposta do servidor
     console.log('Resposta do servidor recebida:', response);
 
     if (!response.ok) {
-      // LOG 3: Verificando se a resposta foi um erro
       const errorBody = await response.text();
       console.error('Falha ao criar intenção de pagamento. Status:', response.status, 'Corpo:', errorBody);
       throw new Error('Falha ao criar intenção de pagamento.');
     }
     
     const responseData = await response.json();
-    // LOG 4: Sucesso!
     console.log('Payment Intent criado com sucesso!', responseData);
     return responseData;
 
   } catch (error) {
-    // LOG 5: Capturando qualquer erro na chamada fetch ou no processamento
     console.error('ERRO INESPERADO ao chamar createPaymentIntent:', error);
-    throw error; // Re-lança o erro para que o chamador possa lidar com ele
+    throw error; 
   }
 };
 
-export const uploadImage = async (file: File): Promise<{ imageUrl: string }> => {
+export const uploadImage = async (file: File, resourceType: 'image' | 'video' = 'image' ): Promise<{ imageUrl: string }> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
   
   const formData = new FormData();
   formData.append('file', file);
+	formData.append('resource_type', resourceType);
 
   const response = await fetch(`${API_BASE_URL}/uploads/image`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` }, // Segurança é importante!
-    body: formData, // Enviamos como FormData, não JSON
+    headers: { 'Authorization': `Bearer ${token}` }, 
+    body: formData, 
   });
 
   if (!response.ok) {
@@ -231,6 +226,7 @@ export const uploadImage = async (file: File): Promise<{ imageUrl: string }> => 
 
   return response.json();
 };
+
 
 export const uploadProfilePicture = async (file: File): Promise<{ token: string }> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
@@ -246,5 +242,94 @@ export const uploadProfilePicture = async (file: File): Promise<{ token: string 
   if (!response.ok) {
     throw new Error('Falha ao atualizar a foto de perfil.');
   }
+  return response.json();
+};
+
+
+export const forgotPassword = async (email: string): Promise<string> => {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) throw new Error('Falha ao solicitar redefinição de senha.');
+  return response.text(); 
+};
+
+interface ResetPasswordData {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export const resetPassword = async (data: ResetPasswordData): Promise<string> => {
+  const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Falha ao redefinir a senha.');
+  }
+  return response.text(); 
+};
+
+
+
+
+export interface HeroSlide {
+  id: number;
+  imageUrl: string;
+  sortOrder: number;
+}
+
+export interface HeroConfig {
+  id: number;
+  type: 'VIDEO' | 'BANNER' | 'SLIDESHOW';
+  title: string;
+  subtitle: string;
+  mainUrl: string;
+  slides: HeroSlide[];
+  active: boolean;
+}
+
+export interface HeroConfigDTO {
+  type: 'VIDEO' | 'BANNER' | 'SLIDESHOW';
+  title: string;
+  subtitle: string;
+  mainUrl?: string;
+  slideImageUrls?: string[]; 
+}
+
+
+export const getAdminHeroConfig = async (): Promise<HeroConfig> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/hero`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!response.ok) throw new Error('Falha ao buscar configuração do Hero.');
+  return response.json();
+};
+
+export const updateAdminHeroConfig = async (data: HeroConfigDTO): Promise<HeroConfig> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/hero`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) throw new Error('Falha ao atualizar a configuração do Hero.');
+  return response.json();
+};
+export const getActiveHeroConfig = async (): Promise<HeroConfig> => {
+  const response = await fetch(`${API_BASE_URL}/v1/hero/active`);
+  if (!response.ok) throw new Error('Falha ao buscar a configuração do Hero.');
+  return response.json();
+};
+
+export const fetchPublicPacoteById = async (id: string): Promise<PacoteViagem> => {
+  const response = await fetch(`${API_BASE_URL}/v1/destinations/${id}`);
+  if (!response.ok) throw new Error('Falha ao buscar dados do pacote.');
   return response.json();
 };

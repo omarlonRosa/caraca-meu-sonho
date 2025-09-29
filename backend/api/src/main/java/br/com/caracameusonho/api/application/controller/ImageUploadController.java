@@ -21,8 +21,12 @@ public class ImageUploadController {
     private final ImageUploadService imageUploadService;
 
     @PostMapping("/image")
-    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
-        String imageUrl = imageUploadService.upload(file);
+    public ResponseEntity<Map<String, String>> uploadImage(
+				@RequestParam("file") MultipartFile file,
+				@RequestParam(value = "resource_type", defaultValue = "image")
+				String resourceType
+	) {
+        String imageUrl = imageUploadService.upload(file, resourceType);
 
         Map<String, String> response = Map.of("imageUrl", imageUrl);
 

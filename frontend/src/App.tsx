@@ -13,31 +13,42 @@ import { DashboardPage } from './pages/DashboardPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { MeuPerfilPage } from './pages/MeuPerfilPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { AdminHeroPage } from './pages/admin/AdminHeroPage';
+import { PackageDetailPage } from './pages/PackageDetailPage';
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/destinos" element={<DestinationsPage />} />
+	return (
+		<Routes>
+			<Route path="/login" element={<LoginPage />} />
+			<Route path="/register" element={<RegisterPage />} />
+			<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+			<Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-		<Route path="/meu-perfil" element={<MeuPerfilPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/pagamento-sucesso" element={<PaymentSuccessPage />} />
-        </Route>
-        
-        <Route element={<AdminProtectedRoute />}>
-          <Route path="/admin" element={<AdminDashboardPage />} />
-          <Route path="/admin/pacotes/novo" element={<NewPackagePage />} />
-          <Route path="/admin/pacotes/editar/:id" element={<EditPackagePage />} />
-        </Route>
-      </Route>
-    </Routes>
-  );
+
+			<Route element={<AppLayout />}>
+				<Route path="/" element={<HomePage />} />
+				<Route path="/destinos" element={<DestinationsPage />} />
+				<Route path="/destinos/:id" element={<PackageDetailPage />} />
+
+				<Route element={<ProtectedRoute />}>
+					<Route path="/dashboard" element={<DashboardPage />} />
+					<Route path="/meu-perfil" element={<MeuPerfilPage />} />
+					<Route path="/checkout" element={<CheckoutPage />} />
+					<Route path="/pagamento-sucesso" element={<PaymentSuccessPage />} />
+
+
+				</Route>
+
+				<Route element={<AdminProtectedRoute />}>
+					<Route path="/admin" element={<AdminDashboardPage />} />
+					<Route path="/admin/pacotes/novo" element={<NewPackagePage />} />
+					<Route path="/admin/pacotes/editar/:id" element={<EditPackagePage />} />
+					 <Route path="/admin/hero" element={<AdminHeroPage />} />
+				</Route>
+			</Route>
+		</Routes>
+	);
 }
 export default App;

@@ -1,31 +1,49 @@
+import { useState, useEffect } from 'react';
+import { getActiveHeroConfig, type HeroConfig } from '../services/api';
+import { BannerHero } from './BannerHero';
+import { VideoHero } from './VideoHero';
+import { SlideshowHero } from './SlideshowHero';
 
 export function HeroSection() {
-  const videoUrl = 'https://res.cloudinary.com/djrzoct2q/video/upload/v1756939513/video_hero_e6accx.mp4';
+  const [heroConfig, setHeroConfig] = useState<HeroConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  return (
-    <section id="home" className="relative h-screen flex items-center justify-center text-white overflow-hidden">
-      {/* Vídeo de Fundo */}
-      <video
-        className="absolute top-1/2 left-1/2 w-full h-full min-w-full min-h-full object-cover transform -translate-x-1/2 -translate-y-1/2 z-0"
-        src={videoUrl}
-        autoPlay
-        loop
-        muted
-        playsInline // Essencial para o autoplay funcionar em dispositivos iOS
-      />
-      
-      {/* Overlay Escuro para Legibilidade */}
-      <div className="absolute inset-0 bg-black opacity-50 z-10" />
+  useEffect(() => {
+    getActiveHeroConfig()
+      .then(data => {
+        setHeroConfig(data);
+      })
+      .catch(err => {
+        setError("Não foi possível carregar o conteúdo principal.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
-      {/* Conteúdo Centralizado */}
-      <div className="relative z-20 text-center px-4">
-        <h1 className="text-3xl text-center md:text-7xl font-heading font-extrabold drop-shadow-lg">
-          Viaje com o fotógrafo dos seus sonhos.
-        </h1>
-        <button className="mt-8 bg-brand-primary hover:bg-teal-600 text-white font-bold text-lg py-4 px-8 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300">
-          Quero viver essa experiência
-        </button>
-      </div>
-    </section>
-  );
+  if (loading) {
+    return <section className="h-screen bg-gray-200 dark:bg-slate-800 flex items-center justify-center">Carregando...</section>;
+  }
+
+  if (error || !heroConfig) {
+    return <section className="h-screen bg-red-100 flex items-center justify-center text-red-700">{error || "Hero não configurado."}</section>;
+  }
+
+  switch (heroConfig.type) {
+    case 'BANNER':
+      return <BannerHero config={heroConfig} />;
+    
+    case 'VIDEO':
+      return <VideoHero config={heroConfig} />;
+    
+    case 'SLIDESHOW':
+      if (heroConfig.slides && heroConfig.slides.length > 0) {
+        return <SlideshowHero config={heroConfig} />;
+      }
+      return <BannerHero config={{...heroConfig, mainUrl: 'https://res.cloudinary.com/djrzoct2q/image/upload/v1756939987/banner_hero_default_v2_x2k9v0.jpg' }} />;
+    
+    default:
+      return <section className="h-screen bg-red-100 flex items-center justify-center">Tipo de Hero inválido.</section>;
+  }
 }

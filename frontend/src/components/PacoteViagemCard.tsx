@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { type PacoteViagem, createPendingReserva } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -16,7 +16,8 @@ export function PacoteViagemCard({ pacote }: CardProps) {
     year: 'numeric',
   });
 
-  const handleReserveClick = async () => {
+  const handleReserveClick = async (e: React.MouseEvent) => {
+		e.stopPropagation();
     if (!token) {
       navigate('/login');
       return;
@@ -31,6 +32,7 @@ export function PacoteViagemCard({ pacote }: CardProps) {
   };
 
   return (
+	<Link to={`/destinos/${pacote.id}`} className="block group">
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
       <img className="w-full h-56 object-cover" src={pacote.urlFotoPrincipal} alt={`Foto do destino ${pacote.destino}`} />
       <div className="p-6">
@@ -41,5 +43,6 @@ export function PacoteViagemCard({ pacote }: CardProps) {
         </button>
       </div>
     </div>
+	</Link>
   );
 }

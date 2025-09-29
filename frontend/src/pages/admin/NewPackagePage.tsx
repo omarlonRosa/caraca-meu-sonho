@@ -74,7 +74,12 @@ export function NewPackagePage() {
   return (
     <div className="container mx-auto py-12 px-8">
       <h1 className="text-4xl font-heading font-bold mb-8">Adicionar Novo Pacote</h1>
-      <PackageForm formData={formData} handleChange={handleChange} handleSubmit={handleSubmit} />
+      <PackageForm 
+				formData={formData}
+				handleChange={handleChange}
+				handleSubmit={handleSubmit}
+				selectedFile={selectedFile}
+			/>
     </div>
   );
 }

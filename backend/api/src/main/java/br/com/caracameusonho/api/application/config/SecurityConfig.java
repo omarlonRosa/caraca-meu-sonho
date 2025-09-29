@@ -43,7 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**", "/api/webhooks/stripe").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/destinations").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/v1/destinations/**").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/v1/hero/active").permitAll()
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
 					.requestMatchers("/api/me/**").authenticated()
                     .requestMatchers("/api/payments/**").authenticated()

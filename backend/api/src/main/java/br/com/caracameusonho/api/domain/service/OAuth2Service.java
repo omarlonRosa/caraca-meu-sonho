@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,12 +35,25 @@ public class OAuth2Service {
 
     public String processGoogleLogin(String code) {
         String accessToken = getGoogleAccessToken(code);
-
         JsonNode userInfo = getGoogleUserInfo(accessToken);
+
         String userEmail = userInfo.get("email").asText();
         String userName = userInfo.get("name").asText();
 
-        Usuario usuario = findOrCreateUser(userEmail, userName);
+        String userPictureUrl = null;
+        if (userInfo.has("picture")) {
+            String originalUrl = userInfo.get("picture").asText();
+            if (originalUrl != null && !originalUrl.isEmpty()) {
+                int equalsIndex = originalUrl.lastIndexOf('=');
+                if (equalsIndex > 0) {
+                    userPictureUrl = originalUrl.substring(0, equalsIndex);
+                } else {
+                    userPictureUrl = originalUrl;
+                }
+            }
+        }
+
+        Usuario usuario = findOrCreateUser(userEmail, userName, userPictureUrl);
 
         return tokenService.generateToken(usuario);
     }
@@ -72,14 +85,23 @@ public class OAuth2Service {
         return response.getBody();
     }
 
-private Usuario findOrCreateUser(String email, String name) {
-    return usuarioRepository.findByEmail(email).orElseGet(() -> {
-        Usuario newUser = new Usuario();
-        newUser.setEmail(email);
-        newUser.setNome(name);
-        newUser.setSenha(passwordEncoder.encode(UUID.randomUUID().toString()));
-        newUser.setRoles("ROLE_USER");
-        return usuarioRepository.save(newUser);
-    });
-}
+    private Usuario findOrCreateUser(String email, String name, String pictureUrl) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(email);
+
+        Usuario usuario;
+        if (usuarioOptional.isPresent()) {
+            usuario = usuarioOptional.get();
+            usuario.setNome(name);
+            usuario.setFotoPerfilUrl(pictureUrl); 
+        } else {
+            usuario = new Usuario();
+            usuario.setEmail(email);
+            usuario.setNome(name);
+            usuario.setFotoPerfilUrl(pictureUrl);
+            usuario.setSenha(passwordEncoder.encode(UUID.randomUUID().toString()));
+            usuario.setRoles("ROLE_USER");
+        }
+
+        return usuarioRepository.save(usuario);
+    }
 }

@@ -2,6 +2,8 @@ package br.com.caracameusonho.api.domain.service;
 
 import br.com.caracameusonho.api.domain.model.Usuario;
 import br.com.caracameusonho.api.domain.repository.UsuarioRepository;
+import lombok.AllArgsConstructor;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,17 +14,18 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class AuthorizationService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthorizationService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+   /* public AuthorizationService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
-    }
+    }*/
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -31,8 +34,7 @@ public class AuthorizationService implements UserDetailsService {
     }
 
     public void generatePasswordResetToken(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + email));
+        usuarioRepository.findByEmail(email).ifPresent(usuario -> {
 
         String token = UUID.randomUUID().toString();
 
@@ -43,6 +45,7 @@ public class AuthorizationService implements UserDetailsService {
 
         String resetLink = "http://localhost:5173/reset-password?token=" + token;
         emailService.sendPasswordResetEmail(usuario.getEmail(), usuario.getNome(), resetLink);
+		});
     }
 
     public void resetPassword(String token, String newPassword, String confirmPassword) {
