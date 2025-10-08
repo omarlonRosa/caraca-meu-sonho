@@ -52,7 +52,7 @@ export function AdminGalleryPage() {
 
       const dataTransfer = new DataTransfer();
 	
-      compressedBlobs.forEach((blob, index) => {
+      compressedBlobs.forEach((blob: Blob, index: number) => {
         const originalFile = selectedFiles[index];
         const file = new File([blob], originalFile.name, { type: blob.type });
         dataTransfer.items.add(file);
