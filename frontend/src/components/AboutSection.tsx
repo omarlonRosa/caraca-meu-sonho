@@ -10,6 +10,10 @@ export function AboutSection() {
     setIsMuted(!isMuted);
   };
 
+	const handleScroll = (sectionId: string) => {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="about" className="py-20 bg-brand-light dark:bg-brand-dark">
       <div className="container mx-auto px-8 flex flex-col md:flex-row items-center gap-12">
@@ -43,7 +47,7 @@ export function AboutSection() {
           <p className="text-gray-600 dark:text-brand-gray text-lg mb-8 leading-relaxed">
             Mais do que uma viagem, uma imersão. O "Caraca, Meu Sonho!" nasceu da paixão de eternizar momentos únicos em lugares extraordinários. Eu, Janderson Tulio, te convido a embarcar em uma experiência onde cada clique conta uma história e cada paisagem se torna uma memória inesquecível. Não é sobre viajar, é sobre viver e ter tudo registrado.
           </p>
-          <button className="bg-brand-secondary hover:bg-orange-600 text-white font-bold text-lg py-3 px-8 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300">
+          <button onClick={() => handleScroll('como-funciona')} className="bg-brand-secondary hover:bg-orange-600 text-white font-bold text-lg py-3 px-8 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300">
             Conheça a proposta
           </button>
         </div>

@@ -15,6 +15,7 @@ export function HeroSection() {
         setHeroConfig(data);
       })
       .catch(err => {
+        console.error("Erro ao buscar Hero:", err);
         setError("Não foi possível carregar o conteúdo principal.");
       })
       .finally(() => {

@@ -1,4 +1,3 @@
-// --- Interfaces (Tipos de Dados) ---
 
 export interface PacoteViagem {
   id: number;
@@ -54,8 +53,14 @@ interface GoogleLoginData {
   code: string;
 }
 
+interface FotoGaleria{
+	id: number;
+	imageUrl: string;
+	pacoteViagem: PacoteViagem[];
+}
+
 // --- URL Base Única para toda a API ---
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 
 
 // --- Funções de API ---
@@ -333,3 +338,170 @@ export const fetchPublicPacoteById = async (id: string): Promise<PacoteViagem> =
   if (!response.ok) throw new Error('Falha ao buscar dados do pacote.');
   return response.json();
 };
+
+export const uploadGalleryImages = async (pacoteId: string, files: FileList): Promise<PacoteViagem> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  
+  const formData = new FormData();
+  Array.from(files).forEach(file => {
+    formData.append('files', file);
+  });
+
+  const response = await fetch(`${API_BASE_URL}/admin/pacotes/${pacoteId}/galeria`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha ao fazer upload das imagens da galeria.');
+  }
+
+  return response.json();
+};
+
+
+export const fetchGalleryForPackage = async (pacoteId: number): Promise<FotoGaleria[]> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/me/pacotes/${pacoteId}/galeria`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!response.ok) {
+    if (response.status === 403) throw new Error('Você não tem permissão para ver esta galeria.');
+    throw new Error('Falha ao buscar a galeria de fotos.');
+  }
+  return response.json();
+};
+export type { FotoGaleria };
+
+
+
+// Interfaces para o Gerenciamento de Usuários
+export interface UserAdminView {
+  id: number;
+  nome: string;
+  email: string;
+  roles: string;
+  fotoPerfilUrl?: string;
+}
+
+export interface UserAdminUpdateData {
+  nome: string;
+  email: string;
+  roles: string;
+}
+
+
+export const fetchAdminUsers = async (): Promise<UserAdminView[]> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/users`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!response.ok) throw new Error('Falha ao buscar a lista de usuários.');
+  return response.json();
+};
+
+export const fetchAdminUserById = async (id: string): Promise<UserAdminView> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/users/${id}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!response.ok) throw new Error('Falha ao buscar os dados do usuário.');
+  return response.json();
+};
+
+export const updateAdminUser = async (id: string, data: UserAdminUpdateData): Promise<UserAdminView> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) throw new Error('Falha ao atualizar o usuário.');
+  return response.json();
+};
+
+export const deleteAdminUser = async (id: number): Promise<void> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/users/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!response.ok) throw new Error('Falha ao deletar o usuário.');
+};
+
+
+
+// --- Interfaces para Gerenciamento de Reservas (Admin) ---
+
+export interface ReservaAdminView {
+  reservaId: number;
+  status: string;
+  dataReserva: string;
+  pacoteId: number;
+  pacoteTitulo: string;
+  clienteId: number;
+  clienteNome: string;
+  clienteEmail: string;
+}
+
+export interface UpdateReservaStatusData {
+  newStatus: string;
+}
+
+export const fetchAdminReservas = async (): Promise<ReservaAdminView[]> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/reservas`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!response.ok) throw new Error('Falha ao buscar a lista de reservas.');
+  return response.json();
+};
+
+export const updateReservaStatus = async (reservaId: number, data: UpdateReservaStatusData): Promise<ReservaAdminView> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/reservas/${reservaId}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) throw new Error('Falha ao atualizar o status da reserva.');
+  return response.json();
+};
+
+// --- Interfaces e Funções para a Lista de Espera ---
+
+export interface WaitingListEntry {
+  id: number;
+  pacoteId: number;
+  pacoteTitulo: string;
+  createdAt: string;
+}
+
+export const joinWaitingList = async (pacoteId: number): Promise<WaitingListEntry> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/me/waiting-list`,
+		{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ pacoteId }),
+  });
+
+  if (!response.ok) {
+    try {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Erro ${response.status}`);
+    } catch (e) {
+      throw new Error(`Ocorreu um erro no servidor (status: ${response.status})`);
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (e) {
+    throw new Error('O servidor deu uma resposta inesperada.');
+  }
+};
+
+
+

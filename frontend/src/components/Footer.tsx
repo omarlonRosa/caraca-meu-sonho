@@ -18,7 +18,8 @@ export function Footer() {
   ];
   
   return (
-    <footer className="bg-brand-dark text-brand-light">
+    <footer id="contact"
+			className="bg-brand-dark text-brand-light">
       <div className="container mx-auto px-8 py-12 flex flex-col items-center gap-8">
         
         <nav className="flex flex-wrap justify-center gap-x-8 gap-y-4">

@@ -11,6 +11,7 @@ interface User {
 interface AuthContextData {
   token: string | null;
   user: User | null;
+  isAuthenticated: boolean; 
   loading: boolean;
   login: (token: string) => void;
   logout: () => void;
@@ -19,50 +20,49 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('@CaracaMeuSonho:token');
+  });
+  
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('@CaracaMeuSonho:token');
-    if (savedToken) {
+    if (token) {
       try {
-        const decodedUser = jwtDecode<User>(savedToken);
+        const decodedUser = jwtDecode<User>(token);
         
         // @ts-ignore: O payload do JWT pode ter 'exp'
         if (decodedUser.exp * 1000 > Date.now()) {
-            setToken(savedToken);
             setUser(decodedUser);
         } else {
             localStorage.removeItem('@CaracaMeuSonho:token');
+            setToken(null);
+            setUser(null);
         }
       } catch (error) {
         console.error("Token salvo é inválido:", error);
         localStorage.removeItem('@CaracaMeuSonho:token');
+        setToken(null);
+        setUser(null);
       }
     }
     setLoading(false);
-  }, []);
-
+  }, [token]); 
   const login = (newToken: string) => {
-		 try {
-    const decodedUser = jwtDecode<User>(newToken);
-    // @ts-ignore: O payload do JWT pode ter 'exp'
-    if (decodedUser.exp * 1000 > Date.now()) {
-      localStorage.setItem('@CaracaMeuSonho:token', newToken);
-      setToken(newToken);
-      setUser(decodedUser);
-    } else {
-      localStorage.removeItem('@CaracaMeuSonho:token');
-      setToken(null);
-      setUser(null);
+    try {
+      const decodedUser = jwtDecode<User>(newToken);
+      // @ts-ignore: O payload do JWT pode ter 'exp'
+      if (decodedUser.exp * 1000 > Date.now()) {
+        localStorage.setItem('@CaracaMeuSonho:token', newToken);
+        setToken(newToken);
+      } else {
+        logout();
+      }
+    } catch (error) {
+      console.error("Token recebido é inválido:", error);
+      logout();
     }
-  } catch (error) {
-    console.error("Token recebido é inválido:", error);
-    localStorage.removeItem('@CaracaMeuSonho:token');
-    setToken(null);
-    setUser(null);
-  }
   };
 
   const logout = () => {
@@ -71,8 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const isAuthenticated = !!token;
+
   return (
-    <AuthContext.Provider value={{ token, user, loading, login, logout }}>
+    <AuthContext.Provider value={{ token, user, isAuthenticated, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

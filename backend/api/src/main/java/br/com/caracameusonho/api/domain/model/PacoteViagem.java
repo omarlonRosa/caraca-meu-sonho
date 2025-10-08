@@ -1,51 +1,43 @@
 package br.com.caracameusonho.api.domain.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
+import lombok.ToString;
 import java.math.BigDecimal;
-import java. time.LocalDate;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
 @Getter
 @Setter
+@ToString(exclude = {"galeriaFotos", "reservas"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "pacote_viagem")
 public class PacoteViagem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Voltando para IDENTITY, que é mais simples e deve funcionar com o nome correto.
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false)
     private String titulo;
-
-    @Column(nullable = false)
     private String destino;
-
     @Column(columnDefinition = "TEXT")
     private String descricao;
-
-    @Column(nullable = false)
     private LocalDate dataPartida;
-
-    @Column(nullable = false)
     private Integer duracaoDias;
-
-    @Column(nullable = false)
     private BigDecimal preco;
-
-    @Column(nullable = false)
     private Integer vagasDisponiveis;
-
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String urlFotoPrincipal;
-
-    @Column(nullable = false)
     private boolean featured;
+
+    @OneToMany(mappedBy = "pacoteViagem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FotoGaleria> galeriaFotos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pacoteViagem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> reservas = new ArrayList<>();
 }

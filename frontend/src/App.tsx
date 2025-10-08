@@ -17,6 +17,11 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { AdminHeroPage } from './pages/admin/AdminHeroPage';
 import { PackageDetailPage } from './pages/PackageDetailPage';
+import { AdminGalleryPage } from './pages/admin/AdminGalleryPage';
+import { GalleryPage } from './pages/GalleryPage';
+import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminEditUserPage } from './pages/admin/AdminEditUserPage';
+import { AdminReservasPage } from './pages/admin/AdminReservasPage';
 
 function App() {
 	return (
@@ -37,6 +42,7 @@ function App() {
 					<Route path="/meu-perfil" element={<MeuPerfilPage />} />
 					<Route path="/checkout" element={<CheckoutPage />} />
 					<Route path="/pagamento-sucesso" element={<PaymentSuccessPage />} />
+					<Route path="/minhas-viagens/:pacoteId/galeria" element={<GalleryPage />} />
 
 
 				</Route>
@@ -45,7 +51,11 @@ function App() {
 					<Route path="/admin" element={<AdminDashboardPage />} />
 					<Route path="/admin/pacotes/novo" element={<NewPackagePage />} />
 					<Route path="/admin/pacotes/editar/:id" element={<EditPackagePage />} />
-					 <Route path="/admin/hero" element={<AdminHeroPage />} />
+					<Route path="/admin/hero" element={<AdminHeroPage />} />
+					<Route path="/admin/pacotes/:pacoteId/galeria" element={<AdminGalleryPage />} />
+					<Route path="/admin/users" element={<AdminUsersPage />} />
+					<Route path="/admin/users/editar/:userId" element={<AdminEditUserPage />} />
+					<Route path="/admin/reservas" element={<AdminReservasPage />} />
 				</Route>
 			</Route>
 		</Routes>

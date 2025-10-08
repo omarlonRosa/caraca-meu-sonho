@@ -23,7 +23,7 @@ export function FeaturedDestinations() {
   return (
     <div className="bg-white dark:bg-slate-900">
       <div className="container mx-auto p-8">
-        <section id="destaques" className="my-16">
+        <section id="destinos-destaque" className="my-16">
           <h2 className="text-4xl font-heading font-extrabold text-center mb-12 text-brand-dark dark:text-brand-light">
             Destinos em Destaque
           </h2>

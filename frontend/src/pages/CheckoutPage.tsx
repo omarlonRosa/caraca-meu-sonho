@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'; // 1. Importe o useRef
+import { useState, useEffect, useRef } from 'react';
 import { loadStripe} from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { useLocation } from 'react-router-dom';

@@ -15,4 +15,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
 	@Transactional
 	void deleteByPacoteViagemId(Long pacoteId);
+
+	boolean existsByPacoteViagemIdAndUsuarioAndStatus(Long pacoteId, Usuario usuario, String status);
 }

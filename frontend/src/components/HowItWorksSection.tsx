@@ -1,9 +1,7 @@
-// frontend/web/src/components/HowItWorksSection.tsx
 
-// 1. Importamos os novos ícones do Font Awesome
 import { FaMapMarkedAlt, FaClipboardList, FaRegThumbsUp, FaCameraRetro } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
-// 2. Atualizamos o array 'steps' para usar os componentes de ícone
 const steps = [
   {
     icon: <FaMapMarkedAlt className="h-10 w-10" />,
@@ -29,7 +27,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-20 bg-brand-light dark:bg-slate-900">
+    <section id="como-funciona" className="py-20 bg-brand-light dark:bg-slate-900">
       <div className="container mx-auto px-8 text-center">
         <h2 className="text-4xl font-heading font-extrabold text-brand-dark dark:text-brand-light mb-16">
           Como Funciona a Experiência
@@ -53,9 +51,11 @@ export function HowItWorksSection() {
         </div>
         
         <div className="mt-16">
-          <button className="bg-brand-primary hover:bg-teal-600 text-white font-bold text-lg py-3 px-8 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300">
+          <Link
+						to="/destinos"
+						className="bg-brand-primary hover:bg-teal-600 text-white font-bold text-lg py-3 px-8 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300">
             Ver todos os destinos
-          </button>
+          </Link>
         </div>
 
       </div>
