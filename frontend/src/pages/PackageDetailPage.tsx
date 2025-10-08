@@ -17,7 +17,6 @@ export function PackageDetailPage() {
 	const [isInWaitingList, setIsInWaitingList] = useState(false); 
 	const [waitingListError, setWaitingListError] = useState<string | null>(null);
 
-
 	useEffect(() => {
 		if (id) {
 			fetchPublicPacoteById(id)
@@ -62,7 +61,6 @@ export function PackageDetailPage() {
 		}
 	};
 
-
 	if (loading) return <p className="text-center py-20">Carregando pacote...</p>;
 	if (error) return <p className="text-center py-20 text-red-500">{error}</p>;
 	if (!pacote) return null;
@@ -71,46 +69,45 @@ export function PackageDetailPage() {
 	const precoFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pacote.preco);
 
 	const isPacotePassado = new Date(pacote.dataPartida) < new Date();
-	const shouldShowWaitingList = isPacotePassado || pacote.vagasDisponiveis === 0;
-
+	const hasVagas = pacote.vagasDisponiveis > 0;
 
 	const renderActionButton = () => {
-    if (isPacotePassado) {
-        return (
-            <div className="w-full bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-bold text-lg text-center py-4 px-6 rounded-lg">
-                Viagem já realizada
-            </div>
-        );
-    }
+		if (isPacotePassado) {
+			return (
+				<div className="w-full bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-bold text-lg text-center py-4 px-6 rounded-lg">
+					Viagem já realizada
+				</div>
+			);
+		}
 
-    if (!hasVagas) {
-        if (isInWaitingList) {
-            return (
-                <div className="w-full bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 font-bold text-lg text-center py-4 px-6 rounded-lg flex items-center justify-center gap-2">
-                    <FaListAlt /> Você está na Lista!
-                </div>
-            );
-        }
-        return (
-            <>
-                <button
-                    onClick={handleWaitingListClick}
-                    disabled={isJoiningWaitingList}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                    {isJoiningWaitingList ? 'A processar...' : 'Entrar na Lista de Espera'}
-                </button>
-                {waitingListError && <p className="text-red-500 text-center mt-2">{waitingListError}</p>}
-            </>
-        );
-    }
+		if (!hasVagas) {
+			if (isInWaitingList) {
+				return (
+					<div className="w-full bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 font-bold text-lg text-center py-4 px-6 rounded-lg flex items-center justify-center gap-2">
+						<FaListAlt /> Você está na Lista!
+					</div>
+				);
+			}
+			return (
+				<>
+					<button
+						onClick={handleWaitingListClick}
+						disabled={isJoiningWaitingList}
+						className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+					>
+						{isJoiningWaitingList ? 'A processar...' : 'Entrar na Lista de Espera'}
+					</button>
+					{waitingListError && <p className="text-red-500 text-center mt-2">{waitingListError}</p>}
+				</>
+			);
+		}
 
-    return (
-        <button onClick={handleReserveClick} className="w-full bg-brand-primary hover:bg-teal-600 text-white font-bold text-lg py-4 px-6 rounded-lg shadow-md transition-colors">
-            Reservar Agora
-        </button>
-    );
-};
+		return (
+			<button onClick={handleReserveClick} className="w-full bg-brand-primary hover:bg-teal-600 text-white font-bold text-lg py-4 px-6 rounded-lg shadow-md transition-colors">
+				Reservar Agora
+			</button>
+		);
+	};
 
 	return (
 		<div className="container mx-auto py-12 px-8">
@@ -147,7 +144,6 @@ export function PackageDetailPage() {
 					</p>
 
 					{renderActionButton()}
-
 				</div>
 			</div>
 		</div>

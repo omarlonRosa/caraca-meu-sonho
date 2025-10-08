@@ -4,9 +4,18 @@ import { fetchPacoteById, uploadGalleryImages, type PacoteViagem } from '../../s
 import { FaUpload } from 'react-icons/fa';
 import imageCompression from 'browser-image-compression';
 
+interface GaleriaFoto {
+  id: number;
+  imageUrl: string;
+}
+
+interface PacoteComGaleria extends PacoteViagem {
+  galeriaFotos?: GaleriaFoto[];
+}
+
 export function AdminGalleryPage() {
   const { pacoteId } = useParams<{ pacoteId: string }>();
-  const [pacote, setPacote] = useState<PacoteViagem | null>(null);
+  const [pacote, setPacote] = useState<PacoteComGaleria | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -30,7 +39,7 @@ export function AdminGalleryPage() {
 
     setUploading(true);
     setError(null);
-		try {
+    try {
       const options = {
         maxSizeMB: 1, 
         maxWidthOrHeight: 1920, 
@@ -43,7 +52,7 @@ export function AdminGalleryPage() {
 
       const dataTransfer = new DataTransfer();
 	
-		compressedBlobs.forEach((blob, index) => {
+      compressedBlobs.forEach((blob, index) => {
         const originalFile = selectedFiles[index];
         const file = new File([blob], originalFile.name, { type: blob.type });
         dataTransfer.items.add(file);
@@ -65,8 +74,6 @@ export function AdminGalleryPage() {
     }
   };
 
-
-   
   if (loading) return <p>Carregando informações do pacote...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!pacote) return <p>Pacote não encontrado.</p>;
@@ -83,7 +90,7 @@ export function AdminGalleryPage() {
           <input 
             type="file" 
             multiple
-			accept="image/png, image/jpeg, image/webp"
+            accept="image/png, image/jpeg, image/webp"
             onChange={(e) => setSelectedFiles(e.target.files)}
             className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-brand-primary hover:file:bg-violet-100"
           />
@@ -99,7 +106,7 @@ export function AdminGalleryPage() {
         <h3 className="text-xl font-bold mb-4">Fotos Atuais na Galeria</h3>
         {pacote.galeriaFotos && pacote.galeriaFotos.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {pacote.galeriaFotos.map(foto => (
+            {pacote.galeriaFotos.map((foto: GaleriaFoto) => (
               <div key={foto.id} className="rounded-lg overflow-hidden shadow-lg">
                 <img src={foto.imageUrl} alt="Foto da galeria" className="w-full h-40 object-cover" />
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { resetPassword } from '../services/api';
 import { PasswordStrengthIndicator } from '../components/PasswordStrengthIndicator';
 
@@ -68,7 +68,7 @@ export function ResetPasswordPage() {
                 className="w-full px-4 py-2 border rounded-md"
                 placeholder="Pelo menos 6 caracteres"
               />
-								 {newPassword && <PasswordStrengthIndicator password={newPassword} />}
+              {newPassword && <PasswordStrengthIndicator password={newPassword} />}
             </div>
             <div>
               <label htmlFor="confirm-password">Confirme a Nova Senha</label>
