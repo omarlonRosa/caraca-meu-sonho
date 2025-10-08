@@ -25,6 +25,7 @@
     "@eslint/js": "^9.33.0",
     "@tailwindcss/forms": "^0.5.10",
     "@types/browser-image-compression": "^1.0.1",
+    "@types/node": "^24.7.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/swiper": "^5.4.3",
