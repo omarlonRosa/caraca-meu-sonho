@@ -31,7 +31,6 @@ services:
             - property: database
               key: DB_NAME
             - property: user
-              key: DB_USERNAME
+              key: DB_USER
             - property: password
               key: DB_PASSWORD
-      - group: caraca-meu-sonho-secrets # Um grupo para guardar todos os outros segredos

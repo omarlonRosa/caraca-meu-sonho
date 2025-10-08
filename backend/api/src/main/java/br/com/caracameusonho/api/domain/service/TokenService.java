@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 public class TokenService {
 
-	 @Value("${JWT_SECRET}")
+	@Value("${app.jwt.secret}")
 	private String jwtSecret;
 
 
