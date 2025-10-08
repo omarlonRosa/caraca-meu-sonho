@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 					.requestMatchers(HttpMethod.GET, "/").permitAll()
+					.requestMatchers(HttpMethod.GET, "/health").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**", "/api/webhooks/stripe").permitAll()
 					.requestMatchers(HttpMethod.GET, "/api/v1/destinations/**").permitAll()
