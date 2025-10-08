@@ -1,36 +1,37 @@
 services:
+  # Serviço do Banco de Dados PostgreSQL
+  - type: pserv # 'pserv' é para private service, mas vamos usar 'db' para banco de dados
+    name: cmsdb-prod
+    runtime: postgres
+    plan: free
+    postgres:
+      version: "16"
+
+  # Serviço da API Spring Boot
   - type: web
-    name: api-caraca-meu-sonho
-    env: java
-    plan: free 
-    buildCommand: "./mvnw clean install"
-    startCommand: "java -jar target/api-0.0.1-SNAPSHOT.jar"
-    healthCheckPath: /api/health # Crie um endpoint de health check se não tiver
+    name: caraca-meu-sonho-api
+    runtime: docker # DIZ AO RENDER PARA USAR O SEU DOCKERFILE
+    repo: https://github.com/omarlonRosa/caraca-meu-sonho # O seu repo
+    region: oregon # ou a região que preferir
+    plan: free
+    healthCheckPath: /
+    dockerfilePath: ./backend/api/Dockerfile # Caminho correto para o Dockerfile
+    dockerContext: ./backend/api # Define o contexto do build
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      - key: SERVER_PORT
-        value: 10000 # O Render espera que o serviço escute na porta 10000
-
       - fromDatabase:
-          name: cmsdb_prod # O nome do seu serviço de banco de dados no Render
-          property: connectionString
-        key: SPRING_DATASOURCE_URL # O Spring Boot lê essa variável automaticamente
-
-      - group: caraca-meu-sonho-secrets
-        keys:
-          - key: JWT_SECRET
-          - key: CLOUDINARY_CLOUD_NAME
-          - key: CLOUDINARY_API_KEY
-          - key: CLOUDINARY_API_SECRET
-          - key: STRIPE_SECRET_KEY
-          - key: STRIPE_WEBHOOK_SECRET
-          - key: GOOGLE_CLIENT_ID
-          - key: GOOGLE_CLIENT_SECRET
-          - key: SPRING_MAIL_HOST
-          - key: SPRING_MAIL_PORT
-          - key: SPRING_MAIL_USERNAME
-          - key: SPRING_MAIL_PASSWORD
-          - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH
-          - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
-          - key: CORS_ALLOWED_ORIGINS
+          name: cmsdb-prod # O nome do serviço de banco de dados definido acima
+          # Mapeia as propriedades do banco de dados para as variáveis que a nossa app espera
+          propertyMappings:
+            - property: host
+              key: DB_HOST
+            - property: port
+              key: DB_PORT
+            - property: database
+              key: DB_NAME
+            - property: user
+              key: DB_USERNAME
+            - property: password
+              key: DB_PASSWORD
+      - group: caraca-meu-sonho-secrets # Um grupo para guardar todos os outros segredos
