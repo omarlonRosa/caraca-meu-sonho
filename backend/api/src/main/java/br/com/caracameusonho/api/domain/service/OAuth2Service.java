@@ -33,8 +33,8 @@ public class OAuth2Service {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String googleRedirectUri;
 
-    public String processGoogleLogin(String code) {
-        String accessToken = getGoogleAccessToken(code);
+    public String processGoogleLogin(String code, String redirectUri) {
+        String accessToken = getGoogleAccessToken(code, redirectUri);
         JsonNode userInfo = getGoogleUserInfo(accessToken);
 
         String userEmail = userInfo.get("email").asText();
@@ -58,7 +58,7 @@ public class OAuth2Service {
         return tokenService.generateToken(usuario);
     }
 
-    private String getGoogleAccessToken(String code) {
+    private String getGoogleAccessToken(String code, String redirectUri) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -67,7 +67,7 @@ public class OAuth2Service {
         map.add("code", code);
         map.add("client_id", googleClientId);
         map.add("client_secret", googleClientSecret);
-        map.add("redirect_uri", googleRedirectUri);
+        map.add("redirect_uri", redirectUri);
         map.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);

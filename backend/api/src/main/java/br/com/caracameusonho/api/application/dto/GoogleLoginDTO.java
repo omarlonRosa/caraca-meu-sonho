@@ -1,3 +1,3 @@
 package br.com.caracameusonho.api.application.dto;
 
-public record GoogleLoginDTO(String code) {}
+public record GoogleLoginDTO(String code, String redirectUri) {}

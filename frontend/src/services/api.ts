@@ -51,6 +51,7 @@ export interface LoginResponse {
 
 interface GoogleLoginData {
   code: string;
+	redirectUri: string;	
 }
 
 interface FotoGaleria{
@@ -503,6 +504,9 @@ export const joinWaitingList = async (pacoteId: number): Promise<WaitingListEntr
     throw new Error('O servidor deu uma resposta inesperada.');
   }
 };
+
+
+
 
 
 

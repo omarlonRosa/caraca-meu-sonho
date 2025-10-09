@@ -17,13 +17,15 @@ public class OAuth2Controller {
 
     private final OAuth2Service oAuth2Service;
 
-    @PostMapping("/google")
+	@PostMapping("/google")
     public ResponseEntity<LoginResponseDTO> googleLogin(@RequestBody GoogleLoginDTO googleLoginDTO) {
         try {
-            String token = oAuth2Service.processGoogleLogin(googleLoginDTO.code());
+            String token = oAuth2Service.processGoogleLogin(googleLoginDTO.code(), googleLoginDTO.redirectUri());
             return ResponseEntity.ok(new LoginResponseDTO(token));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
-}
+
+
+   }

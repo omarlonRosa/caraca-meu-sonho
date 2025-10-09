@@ -21,11 +21,10 @@ export function LoginPage() {
 
 			if (code) {
 				try {
-					console.log("Código do Google encontrado na URL:", code);
-					const response = await googleLogin({ code }); 
+                    const redirectUri = window.location.origin + '/login';
+					const response = await googleLogin({ code, redirectUri }); 
 					
 					window.history.replaceState({}, document.title, "/login");
-
 					handleGoogleLoginSuccess(response.token);
 
 				} catch (err) {
@@ -38,7 +37,6 @@ export function LoginPage() {
 
 		handleGoogleRedirect();
 	}, []);
-
 
 
 	const handleSubmit = async (e: React.FormEvent) => {
