@@ -24,18 +24,27 @@ public class HeroConfigService {
 
 	 private static final Logger logger = LoggerFactory.getLogger(HeroConfigService.class);
 
-
 	public HeroConfig getActiveHeroConfig() {
-        List<HeroConfig> activeConfigs = heroConfigRepository.findByActiveTrue();
-        if (activeConfigs.isEmpty()) {
-            throw new RuntimeException("Nenhuma configuração de Hero ativa encontrada.");
-        }
-
-        if (activeConfigs.size() > 1) {
-            logger.warn("Múltiplas configurações de Hero ativas encontradas! Usando a primeira.");
-        }
-        return activeConfigs.get(0);
+    List<HeroConfig> activeConfigs = heroConfigRepository.findByActiveTrue();
+    if (activeConfigs.isEmpty()) {
+        logger.info("Nenhuma configuração de Hero ativa encontrada. Retornando configuração padrão.");
+        
+        // Criar configuração padrão
+        HeroConfig defaultConfig = new HeroConfig();
+        defaultConfig.setType(HeroConfig.HeroType.BANNER);
+        defaultConfig.setTitle("Bem-vindo ao Caraca Meu Sonho!");
+        defaultConfig.setSubtitle("Configure seu Hero no painel admin");
+        defaultConfig.setMainUrl("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920");
+        defaultConfig.setActive(false);
+        return defaultConfig;
     }
+
+    if (activeConfigs.size() > 1) {
+        logger.warn("Múltiplas configurações de Hero ativas encontradas! Usando a primeira.");
+    }
+    return activeConfigs.get(0);
+}
+
 
 
     @Transactional

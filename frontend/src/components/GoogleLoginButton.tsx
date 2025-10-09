@@ -20,15 +20,20 @@ export function GoogleLoginButton({ onSuccess }: GoogleLoginButtonProps) {
   
   const onGoogleSuccess = async (codeResponse: any) => {
     try {
+      console.log('Google code recebido:', codeResponse.code);
       const response = await googleLogin({ code: codeResponse.code });
+      console.log('Token recebido do backend:', response.token);
       onSuccess(response.token); 
     } catch (error) {
       console.error("Falha ao processar login com Google", error);
+      alert("Erro ao fazer login com Google. Tente novamente.");
     }
   };
 
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
+    ux_mode: 'redirect', // Mudado de popup para redirect
+    redirect_uri: window.location.origin + '/login', // URL de callback
     onSuccess: onGoogleSuccess,
     onError: errorResponse => {
       console.error('Google login error', errorResponse);

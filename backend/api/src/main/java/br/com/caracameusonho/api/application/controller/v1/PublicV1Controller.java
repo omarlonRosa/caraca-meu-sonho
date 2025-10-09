@@ -1,5 +1,7 @@
 package br.com.caracameusonho.api.application.controller.v1;
 
+import br.com.caracameusonho.api.application.dto.DestinationsResponse;
+import br.com.caracameusonho.api.application.dto.DestinationsResponseDTO;
 import br.com.caracameusonho.api.application.dto.PacoteViagemDTO;
 import br.com.caracameusonho.api.domain.service.PacoteViagemService;
 import lombok.AllArgsConstructor;
@@ -26,4 +28,9 @@ public class PublicV1Controller {
     public ResponseEntity<PacoteViagemDTO> getPacoteById(@PathVariable Long id) {
         return ResponseEntity.ok(pacoteViagemService.findByIdAsDto(id));
     }
+
+	@GetMapping("/destinations")
+public ResponseEntity<DestinationsResponse> getAllDestinations() {
+    return ResponseEntity.ok(pacoteViagemService.getAllDestinationsGrouped());
+}
 }
