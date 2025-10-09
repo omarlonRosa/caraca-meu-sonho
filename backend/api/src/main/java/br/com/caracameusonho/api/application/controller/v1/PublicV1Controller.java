@@ -24,13 +24,15 @@ public class PublicV1Controller {
         return ResponseEntity.ok(pacoteViagemService.findAllAsDto());
     }
 
+
+	@GetMapping("/destinations")
+    public ResponseEntity<DestinationsResponseDTO> getAllDestinations() {
+        return ResponseEntity.ok(pacoteViagemService.findAllCategorized());
+    }
+
     @GetMapping("/destinations/{id}")
     public ResponseEntity<PacoteViagemDTO> getPacoteById(@PathVariable Long id) {
         return ResponseEntity.ok(pacoteViagemService.findByIdAsDto(id));
     }
 
-	@GetMapping("/destinations")
-public ResponseEntity<DestinationsResponse> getAllDestinations() {
-    return ResponseEntity.ok(pacoteViagemService.getAllDestinationsGrouped());
-}
-}
+	}
