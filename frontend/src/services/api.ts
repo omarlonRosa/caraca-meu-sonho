@@ -91,6 +91,7 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
 };
 
 export const googleLogin = async (data: GoogleLoginData): Promise<LoginResponse> => {
+	console.log("Enviando código para a URL:", `${API_BASE_URL}/auth/google`);
   const response = await fetch(`${API_BASE_URL}/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
