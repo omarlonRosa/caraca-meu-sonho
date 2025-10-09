@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
-import { loginUser } from '../services/api';
+import { googleLogin, loginUser } from '../services/api';
 
 
 export function LoginPage() {
@@ -13,12 +13,39 @@ export function LoginPage() {
 	const { login } = useAuth(); 
 	const navigate = useNavigate();
 
+
+	useEffect(() => {
+		const handleGoogleRedirect = async () => {
+			const urlParams = new URLSearchParams(window.location.search);
+			const code = urlParams.get('code');
+
+			if (code) {
+				try {
+					console.log("Código do Google encontrado na URL:", code);
+					const response = await googleLogin({ code }); 
+					
+					window.history.replaceState({}, document.title, "/login");
+
+					handleGoogleLoginSuccess(response.token);
+
+				} catch (err) {
+					console.error("Falha ao trocar o código do Google por um token", err);
+					setError("Não foi possível fazer login com o Google. Tente novamente.");
+					window.history.replaceState({}, document.title, "/login");
+				}
+			}
+		};
+
+		handleGoogleRedirect();
+	}, []);
+
+
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError(null);
 		try {
-			const response = await loginUser({ email, senha });
-
+			const response = await loginUser({ email, senha }); //
 			login(response.token);
 			navigate('/');
 		} catch (err) {
@@ -99,7 +126,7 @@ export function LoginPage() {
 				</div>
 
 				<div>
-					<GoogleLoginButton onSuccess={handleGoogleLoginSuccess} />
+					<GoogleLoginButton/>
 				</div>
 
 
