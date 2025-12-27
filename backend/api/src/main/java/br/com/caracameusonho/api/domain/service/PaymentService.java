@@ -1,41 +1,61 @@
 package br.com.caracameusonho.api.domain.service;
 
+import br.com.caracameusonho.api.domain.integration.asaas.AsaasService;
+import br.com.caracameusonho.api.domain.integration.asaas.dto.AsaasClienteRequest;
+import br.com.caracameusonho.api.domain.integration.asaas.dto.AsaasCobrancaRequest;
+import br.com.caracameusonho.api.domain.integration.asaas.dto.AsaasCobrancaResponse;
 import br.com.caracameusonho.api.domain.model.PacoteViagem;
-import br.com.caracameusonho.api.domain.repository.PacoteViagemRepository;
-import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
-import com.stripe.param.PaymentIntentCreateParams;
+import br.com.caracameusonho.api.domain.model.Reserva;
+import br.com.caracameusonho.api.domain.model.Usuario;
+import br.com.caracameusonho.api.domain.repository.ReservaRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaymentService {
 
-    private final PacoteViagemRepository pacoteViagemRepository;
+    private final ReservaRepository reservaRepository;
+    private final AsaasService asaasService;
 
-    public PaymentIntent createPaymentIntent(Long pacoteId, Long reservaId) throws StripeException {
-        PacoteViagem pacote = pacoteViagemRepository.findById(pacoteId)
-                .orElseThrow(() -> new EntityNotFoundException("Pacote não encontrado"));
+    @Transactional
+    public Reserva iniciarPagamento(Long reservaId, String formaPagamento) {
+        Reserva reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva não encontrada"));
 
-        long amountInCents = pacote.getPreco().multiply(new java.math.BigDecimal("100")).longValue();
+        Usuario usuario = reserva.getUsuario();
+        PacoteViagem pacote = reserva.getPacoteViagem();
 
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("reserva_id", reservaId.toString());
+        String customerId = reserva.getAsaasCustomerId();
+        
+        if (customerId == null) {
+            AsaasClienteRequest clienteRequest = new AsaasClienteRequest(
+                usuario.getNome(),
+                usuario.getCpf() 
+            );
+            customerId = asaasService.criarCliente(clienteRequest);
+            reserva.setAsaasCustomerId(customerId);
+        }
 
-        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                .setAmount(amountInCents)
-                .setCurrency("brl")
-                .putAllMetadata(metadata)
-                .setAutomaticPaymentMethods(
-                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build()
-                )
-                .build();
+        AsaasCobrancaRequest cobrancaRequest = new AsaasCobrancaRequest(
+            customerId,
+            formaPagamento, 
+            pacote.getPreco(),
+            LocalDate.now().plusDays(3), 
+            "Pagamento Reserva: " + pacote.getTitulo(),
+            reserva.getId().toString()
+        );
 
-        return PaymentIntent.create(params);
+        AsaasCobrancaResponse cobrancaResponse = asaasService.gerarCobranca(cobrancaRequest);
+
+        reserva.setAsaasPaymentId(cobrancaResponse.id());
+        reserva.setAsaasBoletoUrl(cobrancaResponse.bankSlipUrl()); 
+        reserva.setUrlHotelVoucher(cobrancaResponse.invoiceUrl()); 
+        
+        return reservaRepository.save(reserva);
     }
 }

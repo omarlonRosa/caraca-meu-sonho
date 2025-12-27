@@ -60,6 +60,11 @@ interface FotoGaleria{
 	pacoteViagem: PacoteViagem[];
 }
 
+export interface PagamentoResponse {
+  linkPagamento: string;
+  linkBoletoPdf: string;
+}
+
 // --- URL Base Única para toda a API ---
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 
@@ -180,38 +185,33 @@ export const createPendingReserva = async (pacoteId: number): Promise<Reserva> =
   return response.json();
 };
 
-export const createPaymentIntent = async (data: { pacoteId: number, reservaId: number }): Promise<{ clientSecret: string }> => {
-  console.log('Tentando criar Payment Intent com os dados:', data); 
-
+export const iniciarPagamento = async (data: { reservaId: number, formaPagamento: 'BOLETO' | 'PIX' }): Promise<PagamentoResponse> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
+  
   if (!token) {
-    console.error('ERRO FATAL: Token de autenticação não encontrado. O usuário está logado?');
     throw new Error('Token não encontrado.');
   }
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/payments/create-payment-intent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(data)
-    });
+  const response = await fetch(`${API_BASE_URL}/payments/iniciar`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json', 
+      'Authorization': `Bearer ${token}` 
+    },
+    body: JSON.stringify(data)
+  });
 
-    console.log('Resposta do servidor recebida:', response);
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('Falha ao criar intenção de pagamento. Status:', response.status, 'Corpo:', errorBody);
-      throw new Error('Falha ao criar intenção de pagamento.');
+  if (!response.ok) {
+    const errorText = await response.text();
+    try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.message || 'Falha ao iniciar pagamento');
+    } catch {
+        throw new Error('Falha ao conectar com o servidor de pagamentos.');
     }
-    
-    const responseData = await response.json();
-    console.log('Payment Intent criado com sucesso!', responseData);
-    return responseData;
-
-  } catch (error) {
-    console.error('ERRO INESPERADO ao chamar createPaymentIntent:', error);
-    throw error; 
   }
+  
+  return response.json();
 };
 
 export const uploadImage = async (file: File, resourceType: 'image' | 'video' = 'image' ): Promise<{ imageUrl: string }> => {

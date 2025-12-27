@@ -41,25 +41,22 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                    // Endpoints completamente públicos
                     .requestMatchers(HttpMethod.GET, "/").permitAll()
                     .requestMatchers(HttpMethod.GET, "/health").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                    .requestMatchers("/error").permitAll()
                     
-                    // Auth e webhooks
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/webhooks/stripe").permitAll()
+                    .requestMatchers("/api/webhooks/**").permitAll()
                     
-                    // Endpoints públicos de leitura - ADICIONE ESTAS LINHAS
                     .requestMatchers(HttpMethod.GET, "/api/v1/destinations/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/pacotes/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/pacotes/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/hero/active").permitAll()
                     
-                    // Admin
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     
-                    // Autenticados
                     .requestMatchers("/api/me/**").authenticated()
                     .requestMatchers("/api/payments/**").authenticated()
                     .requestMatchers("/api/reservas/**").authenticated()
@@ -88,7 +85,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("*")); // Permitir todos os headers
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // Cache da configuração CORS por 1 hora
+        configuration.setMaxAge(3600L); 
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

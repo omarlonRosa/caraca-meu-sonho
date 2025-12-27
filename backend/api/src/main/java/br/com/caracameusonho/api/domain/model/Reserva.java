@@ -30,4 +30,13 @@ public class Reserva {
 
     private LocalDateTime dataReserva;
     private String status;
+
+    private String urlPassagem;
+    private String urlHotelVoucher;
+    private String urlSeguroViagem;
+
+    private String asaasCustomerId;
+    private String asaasPaymentId;  
+    private String asaasBoletoUrl;  
+    private String asaasPixQrcode;
 }

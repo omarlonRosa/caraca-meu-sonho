@@ -35,6 +35,9 @@ public class Usuario implements UserDetails {
     private String roles;
     private String fotoPerfilUrl;
 
+    @Column(length = 14)
+    private String cpf;
+
     @JsonIgnore
     private String resetPasswordToken;
     @JsonIgnore

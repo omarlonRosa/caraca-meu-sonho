@@ -8,6 +8,12 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+console.log("=== DEBUG AMBIENTE ===");
+console.log("ID do Google:", CLIENT_ID);
+console.log("API URL:", import.meta.env.VITE_API_BASE_URL);
+console.log("======================");
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {GOOGLE_CLIENT_ID ? (
@@ -17,7 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <App />
           </AuthProvider>
         </BrowserRouter>
-      </GoogleOAuthProvider>
+      </GoogleOAuthProvider >
     ) : (
       <BrowserRouter>
         <AuthProvider>

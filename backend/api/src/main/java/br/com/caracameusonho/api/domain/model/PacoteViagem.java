@@ -5,10 +5,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
@@ -35,9 +38,16 @@ public class PacoteViagem {
     private String urlFotoPrincipal;
     private boolean featured;
 
+    @Column(columnDefinition = "TEXT")
+    private String roteiroURL;
+
+    @Column(columnDefinition = "TEXT")
+    private String dicasViagem;
+
     @OneToMany(mappedBy = "pacoteViagem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FotoGaleria> galeriaFotos = new ArrayList<>();
 
     @OneToMany(mappedBy = "pacoteViagem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Reserva> reservas = new ArrayList<>();
 }
