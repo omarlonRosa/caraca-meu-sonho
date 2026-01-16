@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import {type PacoteViagem, fetchPacotesViagem } from '../services/api';
+import { type PacoteViagem, fetchPacotesViagem } from '../services/api';
 import { PacoteViagemCard } from '../components/PacoteViagemCard';
 
 export function DestinationsPage() {
@@ -12,9 +12,12 @@ export function DestinationsPage() {
     const carregarPacotes = async () => {
       try {
         const data = await fetchPacotesViagem();
-        setUpcoming(data.upcoming);
-        setPast(data.past);
+        
+        setUpcoming(data.upcoming || []);
+        setPast(data.all || []);
+        
       } catch (err) {
+        console.error(err); 
         setError('Não foi possível carregar as viagens.');
       } finally {
         setLoading(false);
@@ -31,17 +34,20 @@ export function DestinationsPage() {
         
         {!loading && !error && (
           <>
-            {/* Seção de Próximas Viagens */}
             <div className="text-center mb-16">
               <h1 className="text-5xl font-heading font-extrabold text-brand-dark dark:text-brand-light">Próximas Viagens</h1>
               <p className="text-lg text-brand-gray mt-4">Vagas abertas para as próximas expedições. Garanta a sua!</p>
             </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
-              {upcoming.map((pacote) => <PacoteViagemCard key={pacote.id} pacote={pacote} />)}
+              {upcoming?.length > 0 ? (
+                upcoming.map((pacote) => <PacoteViagemCard key={pacote.id} pacote={pacote} />)
+              ) : (
+                <p className="col-span-full text-center text-gray-500">Nenhuma viagem futura encontrada no momento.</p>
+              )}
             </div>
 
-            {/* Seção de Portfólio (Viagens Realizadas) */}
-            {past.length > 0 && (
+            {past?.length > 0 && (
               <>
                 <div className="text-center mb-16">
                   <h2 className="text-4xl font-heading font-extrabold text-brand-dark dark:text-brand-light">Nosso Portfólio</h2>

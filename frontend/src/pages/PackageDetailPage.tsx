@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicPacoteById, createPendingReserva, joinWaitingList, type PacoteViagem } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { FaCalendarAlt, FaClock, FaUsers, FaTag, FaListAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUsers, FaTag, FaListAlt, FaImages } from 'react-icons/fa';
 
 export function PackageDetailPage() {
 	const { id } = useParams<{ id: string }>();
@@ -12,6 +12,7 @@ export function PackageDetailPage() {
 	const [pacote, setPacote] = useState<PacoteViagem | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
 	const [isJoiningWaitingList, setIsJoiningWaitingList] = useState(false);
 	const [isInWaitingList, setIsInWaitingList] = useState(false); 
@@ -111,41 +112,89 @@ export function PackageDetailPage() {
 
 	return (
 		<div className="container mx-auto py-12 px-8">
-			<div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+			{/* Seção Principal */}
+			<div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-16">
 				<div className="lg:col-span-3">
 					<img src={pacote.urlFotoPrincipal} alt={pacote.titulo} className="w-full h-auto object-cover rounded-lg shadow-lg" />
 				</div>
 
 				<div className="lg:col-span-2">
-					<h1 className="text-4xl lg:text-5xl font-heading font-bold mb-4">{pacote.titulo}</h1>
+					<h1 className="text-4xl lg:text-5xl font-heading font-bold mb-4 dark:text-white">{pacote.titulo}</h1>
 					<p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{pacote.destino}</p>
 
 					<div className="space-y-6 border-t border-b border-gray-200 dark:border-slate-700 py-8 mb-8">
-						<div className="flex items-center gap-4 text-lg">
+						<div className="flex items-center gap-4 text-lg dark:text-gray-300">
 							<FaCalendarAlt className="text-brand-primary" size={20} />
 							<span>{dataFormatada}</span>
 						</div>
-						<div className="flex items-center gap-4 text-lg">
+						<div className="flex items-center gap-4 text-lg dark:text-gray-300">
 							<FaClock className="text-brand-primary" size={20} />
 							<span>{pacote.duracaoDias} dias</span>
 						</div>
-						<div className="flex items-center gap-4 text-lg">
+						<div className="flex items-center gap-4 text-lg dark:text-gray-300">
 							<FaUsers className="text-brand-primary" size={20} />
 							<span>{pacote.vagasDisponiveis > 0 ? `${pacote.vagasDisponiveis} vagas restantes` : 'Vagas esgotadas'}</span>
 						</div>
-						<div className="flex items-center gap-4 text-lg">
+						<div className="flex items-center gap-4 text-lg dark:text-gray-300">
 							<FaTag className="text-brand-primary" size={20} />
 							<span className="font-bold">{precoFormatado}</span>
 						</div>
 					</div>
 
-					<p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
+					<p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-8 whitespace-pre-line">
 						{pacote.descricao}
 					</p>
 
 					{renderActionButton()}
 				</div>
 			</div>
+
+			{pacote.galeriaFotos && pacote.galeriaFotos.length > 0 && (
+				<div className="border-t border-gray-200 dark:border-gray-700 pt-12">
+					<h2 className="text-3xl font-heading font-bold mb-8 flex items-center gap-3 dark:text-white">
+						<FaImages className="text-brand-primary" /> 
+						Galeria de Fotos
+					</h2>
+					
+					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+						{pacote.galeriaFotos.map((foto) => (
+							<div 
+                                key={foto.id} 
+                                className="aspect-video rounded-lg overflow-hidden shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={() => setSelectedImage(foto.imageUrl)}
+                            >
+								<img 
+                                    src={foto.imageUrl} 
+                                    alt={`Galeria ${pacote.titulo}`} 
+                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                />
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+            {selectedImage && (
+                <div 
+                    className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-[9999]"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button 
+                        className="absolute top-6 right-6 text-white text-5xl hover:text-gray-300 z-[10000] cursor-pointer"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedImage(null);
+                        }}
+                    >
+                        &times;
+                    </button>
+                    <img 
+                        src={selectedImage} 
+                        alt="Zoom" 
+                        className="max-w-full max-h-[90vh] rounded-lg shadow-2xl pointer-events-none select-none"
+                    />
+                </div>
+            )}
 		</div>
 	);
 }

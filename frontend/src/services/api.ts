@@ -1,3 +1,4 @@
+const API_BASE_URL = 'http://localhost:8080/api'; 
 
 export interface PacoteViagem {
   id: number;
@@ -10,13 +11,17 @@ export interface PacoteViagem {
   vagasDisponiveis: number;
   urlFotoPrincipal: string;
   featured: boolean;
+  dicasViagem?: string;
+  roteiroUrl?: string;
+  galeriaFotos?: { id: number; imageUrl: string }[]; 
 }
 
 export type NewPackageData = Omit<PacoteViagem, 'id'>;
 
 export interface DestinationsResponse {
+  featured: PacoteViagem[];
   upcoming: PacoteViagem[];
-  past: PacoteViagem[];
+  all: PacoteViagem[];
 }
 
 export interface Reserva {
@@ -24,6 +29,13 @@ export interface Reserva {
   pacoteViagem: PacoteViagem;
   dataReserva: string;
   status: string;
+  asaasBoletoUrl?: string;
+  asaasInvoiceUrl?: string;
+  asaasPixQrcode?: string;
+  urlPassagem?: string;
+  urlHotelVoucher?: string;
+  urlSeguroViagem?: string;
+  urlOutros?: string[];
 }
 
 export interface DashboardMetrics {
@@ -38,6 +50,7 @@ interface RegisterData {
   email: string;
   senha: string;
   roles: string;
+  cpf: string; 
 }
 
 interface LoginData {
@@ -51,31 +64,29 @@ export interface LoginResponse {
 
 interface GoogleLoginData {
   code: string;
-	redirectUri: string;	
+  redirectUri: string;	
 }
 
-interface FotoGaleria{
-	id: number;
-	imageUrl: string;
-	pacoteViagem: PacoteViagem[];
+export interface FotoGaleria{
+  id: number;
+  imageUrl: string;
+  pacoteViagem: PacoteViagem[];
 }
-
-export interface PagamentoResponse {
-  linkPagamento: string;
-  linkBoletoPdf: string;
-}
-
-// --- URL Base Única para toda a API ---
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
-
-
-// --- Funções de API ---
 
 export const fetchPacotesViagem = async (): Promise<DestinationsResponse> => {
-  const response = await fetch(`${API_BASE_URL}/v1/destinations`);
+  const response = await fetch(`${API_BASE_URL}/pacotes`); 
+  
   if (!response.ok) throw new Error('Falha ao buscar os pacotes de viagem.');
-  return response.json();
+  
+  const data: PacoteViagem[] = await response.json();
+
+  return {
+    featured: data.filter(p => p.featured),
+    upcoming: data, 
+    all: data
+  };
 };
+
 
 export const registerUser = async (data: RegisterData): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -97,7 +108,6 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
 };
 
 export const googleLogin = async (data: GoogleLoginData): Promise<LoginResponse> => {
-	console.log("Enviando código para a URL:", `${API_BASE_URL}/auth/google`);
   const response = await fetch(`${API_BASE_URL}/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -185,7 +195,7 @@ export const createPendingReserva = async (pacoteId: number): Promise<Reserva> =
   return response.json();
 };
 
-export const iniciarPagamento = async (data: { reservaId: number, formaPagamento: 'BOLETO' | 'PIX' }): Promise<PagamentoResponse> => {
+export const iniciarPagamento = async (data: { reservaId: number, formaPagamento: 'BOLETO' | 'PIX' | 'CREDIT_CARD' }): Promise<Reserva> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
   
   if (!token) {
@@ -211,15 +221,16 @@ export const iniciarPagamento = async (data: { reservaId: number, formaPagamento
     }
   }
   
-  return response.json();
+  return response.json(); 
 };
 
-export const uploadImage = async (file: File, resourceType: 'image' | 'video' = 'image' ): Promise<{ imageUrl: string }> => {
+
+export const uploadImage = async (file: File, resourceType: 'image' | 'video' | 'auto' | 'raw' = 'auto' ): Promise<{ imageUrl: string }> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
   
   const formData = new FormData();
   formData.append('file', file);
-	formData.append('resource_type', resourceType);
+  formData.append('resource_type', resourceType);
 
   const response = await fetch(`${API_BASE_URL}/uploads/image`, {
     method: 'POST',
@@ -228,7 +239,7 @@ export const uploadImage = async (file: File, resourceType: 'image' | 'video' = 
   });
 
   if (!response.ok) {
-    throw new Error('Falha ao fazer upload da imagem.');
+    throw new Error('Falha ao fazer upload do arquivo.');
   }
 
   return response.json();
@@ -281,8 +292,6 @@ export const resetPassword = async (data: ResetPasswordData): Promise<string> =>
   }
   return response.text(); 
 };
-
-
 
 
 export interface HeroSlide {
@@ -374,11 +383,8 @@ export const fetchGalleryForPackage = async (pacoteId: number): Promise<FotoGale
   }
   return response.json();
 };
-export type { FotoGaleria };
 
 
-
-// Interfaces para o Gerenciamento de Usuários
 export interface UserAdminView {
   id: number;
   nome: string;
@@ -434,7 +440,6 @@ export const deleteAdminUser = async (id: number): Promise<void> => {
 
 
 
-// --- Interfaces para Gerenciamento de Reservas (Admin) ---
 
 export interface ReservaAdminView {
   reservaId: number;
@@ -471,7 +476,52 @@ export const updateReservaStatus = async (reservaId: number, data: UpdateReserva
   return response.json();
 };
 
-// --- Interfaces e Funções para a Lista de Espera ---
+export async function deleteGalleryImage(pacoteId: string | number, fotoId: number): Promise<void> {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  
+  const response = await fetch(`${API_BASE_URL}/admin/pacotes/${pacoteId}/galeria/${fotoId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Falha ao excluir imagem.');
+  }
+}
+
+export const updateProfile = async (data: { nome?: string; cpf?: string; email?: string }): Promise<void> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/me`, { 
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Falha ao atualizar perfil.');
+};
+
+
+
+export interface UpdateReservaDocsData {
+  urlPassagem?: string;
+  urlHotelVoucher?: string;
+  urlSeguroViagem?: string;
+}
+
+export const updateReservaDocs = async (reservaId: number, data: UpdateReservaDocsData): Promise<void> => {
+  const token = localStorage.getItem('@CaracaMeuSonho:token');
+  const response = await fetch(`${API_BASE_URL}/admin/reservas/${reservaId}/documentos`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) throw new Error('Falha ao atualizar documentos.');
+};
+
+
+
 
 export interface WaitingListEntry {
   id: number;
@@ -504,9 +554,3 @@ export const joinWaitingList = async (pacoteId: number): Promise<WaitingListEntr
     throw new Error('O servidor deu uma resposta inesperada.');
   }
 };
-
-
-
-
-
-

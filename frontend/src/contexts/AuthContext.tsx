@@ -5,7 +5,9 @@ interface User {
   sub: string;
   nome: string;
   roles: string[];
-  fotoPerfilUrl?: string;	
+  fotoPerfilUrl?: string;
+  exp?: number; 
+  iat?: number;
 }
 
 interface AuthContextData {
@@ -32,10 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const decodedUser = jwtDecode<User>(token);
         
-        // @ts-ignore: O payload do JWT pode ter 'exp'
-        if (decodedUser.exp * 1000 > Date.now()) {
+        if (decodedUser.exp && (decodedUser.exp * 1000 > Date.now())) {
             setUser(decodedUser);
         } else {
+            console.warn("Token expirado.");
             localStorage.removeItem('@CaracaMeuSonho:token');
             setToken(null);
             setUser(null);
@@ -49,14 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setLoading(false);
   }, [token]); 
+  
   const login = (newToken: string) => {
     try {
       const decodedUser = jwtDecode<User>(newToken);
-      // @ts-ignore: O payload do JWT pode ter 'exp'
-      if (decodedUser.exp * 1000 > Date.now()) {
+      
+      if (decodedUser.exp && (decodedUser.exp * 1000 > Date.now())) {
         localStorage.setItem('@CaracaMeuSonho:token', newToken);
         setToken(newToken);
       } else {
+        alert("Sessão expirada ou token inválido. Faça login novamente.");
         logout();
       }
     } catch (error) {
