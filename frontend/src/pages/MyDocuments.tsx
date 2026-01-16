@@ -14,7 +14,7 @@ export function MyDocuments() {
                     r.urlHotelVoucher || 
                     r.urlSeguroViagem || 
                     r.asaasBoletoUrl ||
-                    (r.urlsOutros && r.urlsOutros.length > 0)
+                    (r.urlOutros && r.urlOutros.length > 0)
                 );
                 setReservas(comDocs);
             } catch (err) {
@@ -75,7 +75,7 @@ export function MyDocuments() {
                                             </a>
                                         )}
 
-                                        {reserva.urlsOutros && reserva.urlsOutros.map((url, index) => (
+                                        {reserva.urlOutros && reserva.urlOutros.map((url, index) => (
                                             <a 
                                                 key={index}
                                                 href={url} 

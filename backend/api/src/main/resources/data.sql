@@ -6,14 +6,14 @@ INSERT INTO pacote_viagem (titulo, destino, descricao, data_partida, duracao_dia
 ('Aurora Boreal na Islândia', 'Reykjavík, Islândia', 'Uma caçada inesquecível pelas luzes...', '2023-12-01', 8, 80.00, 10, 'https://res.cloudinary.com/djrzoct2q/image/upload/v1759871943/uqquyxcqjxelb8s9cjbd.jpg', false);
 
 -- 2. Cria os Usuários (SEU CPF REAL)
-INSERT INTO usuario (nome, email, senha, roles, cpf) VALUES 
+INSERT INTO usuarios (nome, email, senha, roles, cpf) VALUES 
 ('Administrador', 'admin@caracameusonho.com', '$2a$10$c/DeLNNd.MrINbV2mwDNFuaXcEGAyw/lN9.6wAge9CrwPp2W07Uc2', 'ROLE_ADMIN', '12345678900'),
 ('Marlon Rosa', 'marlonrosapl@gmail.com', '$2a$10$BSB7vWpfX6R8hC9PN6CXaOznz9r0rfKeJNJkQw8zBR9Bf4JHVKci2', 'ROLE_USER', '01598558293'); 
 
 -- 3. Cria as Reservas
 INSERT INTO reserva (usuario_id, pacote_viagem_id, data_reserva, status) VALUES
-((SELECT id from usuario where email = 'marlonrosapl@gmail.com'), (SELECT id from pacote_viagem where titulo = 'Aventura na Patagônia'), '2025-08-10T10:00:00', 'PENDENTE'),
-((SELECT id from usuario where email = 'marlonrosapl@gmail.com'), (SELECT id from pacote_viagem where titulo = 'Aurora Boreal na Islândia'), '2023-10-01T15:30:00', 'REALIZADA');
+((SELECT id from usuarios where email = 'marlonrosapl@gmail.com'), (SELECT id from pacote_viagem where titulo = 'Aventura na Patagônia'), '2025-08-10T10:00:00', 'PENDENTE'),
+((SELECT id from usuarios where email = 'marlonrosapl@gmail.com'), (SELECT id from pacote_viagem where titulo = 'Aurora Boreal na Islândia'), '2023-10-01T15:30:00', 'REALIZADA');
 
 -- 4. Hero
 INSERT INTO hero_config (type, title, subtitle, main_url, active) VALUES

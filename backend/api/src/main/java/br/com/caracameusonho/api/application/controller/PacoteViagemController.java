@@ -1,7 +1,6 @@
-package br.com.caracameusonho.api.application.controller.v1;
+package br.com.caracameusonho.api.application.controller;
 
 import br.com.caracameusonho.api.application.dto.PacoteViagemPublicDTO;
-import br.com.caracameusonho.api.domain.model.PacoteViagem;
 import br.com.caracameusonho.api.domain.service.PacoteViagemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,22 +10,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/pacotes") 
 @RequiredArgsConstructor
-public class PublicV1Controller {
+public class PacoteViagemController {
 
     private final PacoteViagemService pacoteViagemService;
 
-    @GetMapping("/destinations")
-    public ResponseEntity<List<PacoteViagemPublicDTO>> getAllDestinations() {
-        return ResponseEntity.ok(pacoteViagemService.findAllAsDto());
+    @GetMapping
+    public ResponseEntity<List<PacoteViagemPublicDTO>> listarTodos() {
+        var pacotes = pacoteViagemService.listarTodos().stream()
+                .map(PacoteViagemPublicDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(pacotes);
     }
 
-    @GetMapping("/destinations/{id}")
-    public ResponseEntity<PacoteViagemPublicDTO> getDestinationById(@PathVariable Long id) {
-        PacoteViagem pacote = pacoteViagemService.buscarPorId(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<PacoteViagemPublicDTO> buscarPorId(@PathVariable Long id) {
+        var pacote = pacoteViagemService.buscarPorId(id);
         return ResponseEntity.ok(new PacoteViagemPublicDTO(pacote));
     }
 }

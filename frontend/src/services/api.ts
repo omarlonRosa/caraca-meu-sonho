@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:8080/api'; 
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 export interface PacoteViagem {
   id: number;
@@ -74,19 +75,15 @@ export interface FotoGaleria{
 }
 
 export const fetchPacotesViagem = async (): Promise<DestinationsResponse> => {
-  const response = await fetch(`${API_BASE_URL}/pacotes`); 
-  
+  const response = await fetch(`${API_BASE_URL}/v1/destinations`); 
   if (!response.ok) throw new Error('Falha ao buscar os pacotes de viagem.');
-  
   const data: PacoteViagem[] = await response.json();
-
   return {
     featured: data.filter(p => p.featured),
     upcoming: data, 
     all: data
   };
 };
-
 
 export const registerUser = async (data: RegisterData): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -197,10 +194,7 @@ export const createPendingReserva = async (pacoteId: number): Promise<Reserva> =
 
 export const iniciarPagamento = async (data: { reservaId: number, formaPagamento: 'BOLETO' | 'PIX' | 'CREDIT_CARD' }): Promise<Reserva> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
-  
-  if (!token) {
-    throw new Error('Token não encontrado.');
-  }
+  if (!token) throw new Error('Token não encontrado.');
 
   const response = await fetch(`${API_BASE_URL}/payments/iniciar`, {
     method: 'POST',
@@ -220,14 +214,11 @@ export const iniciarPagamento = async (data: { reservaId: number, formaPagamento
         throw new Error('Falha ao conectar com o servidor de pagamentos.');
     }
   }
-  
   return response.json(); 
 };
 
-
 export const uploadImage = async (file: File, resourceType: 'image' | 'video' | 'auto' | 'raw' = 'auto' ): Promise<{ imageUrl: string }> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
-  
   const formData = new FormData();
   formData.append('file', file);
   formData.append('resource_type', resourceType);
@@ -238,13 +229,9 @@ export const uploadImage = async (file: File, resourceType: 'image' | 'video' | 
     body: formData, 
   });
 
-  if (!response.ok) {
-    throw new Error('Falha ao fazer upload do arquivo.');
-  }
-
+  if (!response.ok) throw new Error('Falha ao fazer upload do arquivo.');
   return response.json();
 };
-
 
 export const uploadProfilePicture = async (file: File): Promise<{ token: string }> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
@@ -257,12 +244,9 @@ export const uploadProfilePicture = async (file: File): Promise<{ token: string 
     body: formData,
   });
 
-  if (!response.ok) {
-    throw new Error('Falha ao atualizar a foto de perfil.');
-  }
+  if (!response.ok) throw new Error('Falha ao atualizar a foto de perfil.');
   return response.json();
 };
-
 
 export const forgotPassword = async (email: string): Promise<string> => {
   const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
@@ -293,7 +277,6 @@ export const resetPassword = async (data: ResetPasswordData): Promise<string> =>
   return response.text(); 
 };
 
-
 export interface HeroSlide {
   id: number;
   imageUrl: string;
@@ -318,7 +301,6 @@ export interface HeroConfigDTO {
   slideImageUrls?: string[]; 
 }
 
-
 export const getAdminHeroConfig = async (): Promise<HeroConfig> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
   const response = await fetch(`${API_BASE_URL}/admin/hero`, {
@@ -338,6 +320,7 @@ export const updateAdminHeroConfig = async (data: HeroConfigDTO): Promise<HeroCo
   if (!response.ok) throw new Error('Falha ao atualizar a configuração do Hero.');
   return response.json();
 };
+
 export const getActiveHeroConfig = async (): Promise<HeroConfig> => {
   const response = await fetch(`${API_BASE_URL}/v1/hero/active`);
   if (!response.ok) throw new Error('Falha ao buscar a configuração do Hero.');
@@ -352,7 +335,6 @@ export const fetchPublicPacoteById = async (id: string): Promise<PacoteViagem> =
 
 export const uploadGalleryImages = async (pacoteId: string, files: FileList): Promise<PacoteViagem> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
-  
   const formData = new FormData();
   Array.from(files).forEach(file => {
     formData.append('files', file);
@@ -364,13 +346,9 @@ export const uploadGalleryImages = async (pacoteId: string, files: FileList): Pr
     body: formData,
   });
 
-  if (!response.ok) {
-    throw new Error('Falha ao fazer upload das imagens da galeria.');
-  }
-
+  if (!response.ok) throw new Error('Falha ao fazer upload das imagens da galeria.');
   return response.json();
 };
-
 
 export const fetchGalleryForPackage = async (pacoteId: number): Promise<FotoGaleria[]> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
@@ -383,7 +361,6 @@ export const fetchGalleryForPackage = async (pacoteId: number): Promise<FotoGale
   }
   return response.json();
 };
-
 
 export interface UserAdminView {
   id: number;
@@ -398,7 +375,6 @@ export interface UserAdminUpdateData {
   email: string;
   roles: string;
 }
-
 
 export const fetchAdminUsers = async (): Promise<UserAdminView[]> => {
   const token = localStorage.getItem('@CaracaMeuSonho:token');
@@ -437,9 +413,6 @@ export const deleteAdminUser = async (id: number): Promise<void> => {
   });
   if (!response.ok) throw new Error('Falha ao deletar o usuário.');
 };
-
-
-
 
 export interface ReservaAdminView {
   reservaId: number;
@@ -502,8 +475,6 @@ export const updateProfile = async (data: { nome?: string; cpf?: string; email?:
   if (!response.ok) throw new Error('Falha ao atualizar perfil.');
 };
 
-
-
 export interface UpdateReservaDocsData {
   urlPassagem?: string;
   urlHotelVoucher?: string;
@@ -519,9 +490,6 @@ export const updateReservaDocs = async (reservaId: number, data: UpdateReservaDo
   });
   if (!response.ok) throw new Error('Falha ao atualizar documentos.');
 };
-
-
-
 
 export interface WaitingListEntry {
   id: number;

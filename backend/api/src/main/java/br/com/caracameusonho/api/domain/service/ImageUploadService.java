@@ -18,16 +18,19 @@ public class ImageUploadService {
     public String uploadImageFromUrl(String imageUrl) {
         try {
             Map uploadResult = cloudinary.uploader().upload(imageUrl, ObjectUtils.emptyMap());
-
             return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
             throw new RuntimeException("Erro ao fazer upload da imagem: " + e.getMessage());
         }
     }
 
-	 public String upload(MultipartFile file, String resourceType) {
+    public String uploadImage(MultipartFile file) {
+        return upload(file, "image");
+    }
+
+    public String upload(MultipartFile file, String resourceType) {
         try {
-            Map<String, Object> options = ObjectUtils.asMap("resource_type", resourceType);
+            Map<String, Object> options = ObjectUtils.asMap("resource_type", "auto");
 
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
 
@@ -37,6 +40,4 @@ public class ImageUploadService {
             throw new RuntimeException("Erro ao fazer upload do arquivo: " + e.getMessage());
         }
     }
-
-        }
-
+}

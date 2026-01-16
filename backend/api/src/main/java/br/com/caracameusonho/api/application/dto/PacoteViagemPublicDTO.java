@@ -1,37 +1,49 @@
 package br.com.caracameusonho.api.application.dto;
 
 import br.com.caracameusonho.api.domain.model.PacoteViagem;
+import br.com.caracameusonho.api.domain.model.FotoGaleria; // <--- Importante
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.List; 
 
-public record PacoteViagemPublicDTO(
-    Long id,
-    String titulo,
-    String destino,
-    String descricao,
-    LocalDate dataPartida,
-    Integer duracaoDias,
-    BigDecimal preco,
-    Integer vagasDisponiveis,
-    String urlFotoPrincipal,
-    boolean featured,
-    List<String> galeriaFotosUrls 
-) {
+@Getter
+@NoArgsConstructor
+public class PacoteViagemPublicDTO {
+
+    private Long id;
+    private String titulo;
+    private String destino;
+    private String descricao;
+    private LocalDate dataPartida;
+    private Integer duracaoDias;
+    private BigDecimal preco;
+    private String urlFotoPrincipal;
+    private Integer vagasDisponiveis;
+    private Boolean featured;
+    private String dicasViagem;
+    private String roteiroUrl;
+    
+    private List<FotoGaleria> galeriaFotos; 
+
     public PacoteViagemPublicDTO(PacoteViagem pacote) {
-        this(
-            pacote.getId(),
-            pacote.getTitulo(),
-            pacote.getDestino(),
-            pacote.getDescricao(),
-            pacote.getDataPartida(),
-            pacote.getDuracaoDias(),
-            pacote.getPreco(),
-            pacote.getVagasDisponiveis(),
-            pacote.getUrlFotoPrincipal(),
-            pacote.isFeatured(),
-            pacote.getGaleriaFotos().stream().map(foto -> foto.getImageUrl()).collect(Collectors.toList())
-        );
+        this.id = pacote.getId();
+        this.titulo = pacote.getTitulo();
+        this.destino = pacote.getDestino();
+        this.descricao = pacote.getDescricao();
+        this.dataPartida = pacote.getDataPartida();
+        this.duracaoDias = pacote.getDuracaoDias();
+        this.preco = pacote.getPreco();
+        this.urlFotoPrincipal = pacote.getUrlFotoPrincipal();
+        this.vagasDisponiveis = pacote.getVagasDisponiveis();
+        
+        this.featured = pacote.isFeatured(); 
+        
+        this.dicasViagem = pacote.getDicasViagem();
+        this.roteiroUrl = pacote.getRoteiroUrl();
+        
+        this.galeriaFotos = pacote.getGaleriaFotos();
     }
 }

@@ -1,23 +1,21 @@
 package br.com.caracameusonho.api.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import java.time.LocalDateTime;
+import lombok.Data;
 
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "reserva")
+@Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,15 +26,22 @@ public class Reserva {
     @JoinColumn(name = "pacote_viagem_id", nullable = false)
     private PacoteViagem pacoteViagem;
 
-    private LocalDateTime dataReserva;
-    private String status;
+    private LocalDateTime dataReserva = LocalDateTime.now();
+
+    private String status; 
 
     private String urlPassagem;
     private String urlHotelVoucher;
     private String urlSeguroViagem;
 
+    @ElementCollection
+    @CollectionTable(name = "reserva_docs_extras", joinColumns = @JoinColumn(name = "reserva_id"))
+    @Column(name = "url")
+    private List<String> urlsOutros = new ArrayList<>();
+
     private String asaasCustomerId;
-    private String asaasPaymentId;  
-    private String asaasBoletoUrl;  
+    private String asaasPaymentId;
+    private String asaasBoletoUrl;
     private String asaasPixQrcode;
+    private String asaasInvoiceUrl;
 }

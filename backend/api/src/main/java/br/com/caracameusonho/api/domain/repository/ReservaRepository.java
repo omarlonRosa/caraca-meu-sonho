@@ -11,10 +11,15 @@ import java.util.List;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
+    
     List<Reserva> findByUsuario(Usuario usuario);
+    
+    List<Reserva> findByUsuarioId(Long usuarioId);
 
 	@Transactional
 	void deleteByPacoteViagemId(Long pacoteId);
 
 	boolean existsByPacoteViagemIdAndUsuarioAndStatus(Long pacoteId, Usuario usuario, String status);
+
+    boolean existsByUsuarioAndPacoteViagemId(Usuario usuario, Long pacoteViagemId);
 }

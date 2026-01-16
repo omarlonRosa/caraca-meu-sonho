@@ -1,5 +1,6 @@
 package br.com.caracameusonho.api.application.controller;
 
+import br.com.caracameusonho.api.application.dto.ReservaDTO;
 import br.com.caracameusonho.api.domain.model.Reserva;
 import br.com.caracameusonho.api.domain.service.PaymentService;
 import lombok.AllArgsConstructor;
@@ -17,17 +18,12 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     public record IniciarPagamentoDTO(Long reservaId, String formaPagamento) {}
-    
-    public record PagamentoResponseDTO(String linkPagamento, String linkBoletoPdf) {}
 
     @PostMapping("/iniciar")
-    public ResponseEntity<PagamentoResponseDTO> iniciarPagamento(@RequestBody IniciarPagamentoDTO dados) {
+    public ResponseEntity<ReservaDTO> iniciarPagamento(@RequestBody IniciarPagamentoDTO dados) {
         
         Reserva reservaAtualizada = paymentService.iniciarPagamento(dados.reservaId(), dados.formaPagamento());
 
-        return ResponseEntity.ok(new PagamentoResponseDTO(
-            reservaAtualizada.getUrlHotelVoucher(), 
-            reservaAtualizada.getAsaasBoletoUrl()
-        ));
+        return ResponseEntity.ok(new ReservaDTO(reservaAtualizada));
     }
 }

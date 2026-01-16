@@ -4,7 +4,7 @@ import { fetchMinhasReservas, type Reserva } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Calendar, MapPin, Clock, FileText, 
-  Ticket, Shield, Download, AlertCircle, CheckCircle, ExternalLink 
+  Ticket, Shield, Download, AlertCircle 
 } from 'lucide-react';
 
 export function DashboardPage() {

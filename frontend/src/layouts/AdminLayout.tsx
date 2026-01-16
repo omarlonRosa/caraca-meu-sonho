@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Map, Users, LogOut, ClipboardList, Plane } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, ClipboardList, Plane } from 'lucide-react';
 
 export function AdminLayout() {
   const { logout, user } = useAuth();
