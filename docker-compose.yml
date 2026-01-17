@@ -1,16 +1,40 @@
-# caraca-meu-sonho/docker-compose.yml
 services:
-  postgres:
-    image: postgres:16
-    container_name: caraca-meu-sonho-db
+  api:
+    build: ./backend/api
+    container_name: caraca-api
     environment:
-      POSTGRES_USER: cmsuser
-      POSTGRES_PASSWORD: cmspassword
-      POSTGRES_DB: cmsdb
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      SPRING_PROFILES_ACTIVE: prod
+      
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://${DB_HOST}:${DB_PORT};databaseName=${DB_NAME};encrypt=true;trustServerCertificate=true;
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      
+      APP_JWT_SECRET: ${JWT_SECRET}
+      APP_FRONTEND_URL: "http://${SERVER_IP}:${FRONT_PORT}"
+      CORS_ALLOWED_ORIGINS: "http://${SERVER_IP}:${FRONT_PORT}"
+      
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+      
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
 
-volumes:
-  postgres_data:
+    ports:
+      - "${API_PORT}:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: "http://${SERVER_IP}:${API_PORT}"
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+    container_name: caraca-web
+    ports:
+      - "${FRONT_PORT}:80"
