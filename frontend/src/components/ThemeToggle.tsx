@@ -1,5 +1,5 @@
 import { BsFillMoonStarsFill, BsFillSunFill } from 'react-icons/bs';
-import { useDarkMode } from '../hooks /useDarkMode';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 export function ThemeToggle() {
   const [theme, toggleTheme] = useDarkMode();
